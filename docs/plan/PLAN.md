@@ -292,7 +292,7 @@ AGENTS.md
 - 中部：账目列表（每行含分类图标、金额、备注）
 - 底部：固定导航栏（首页、统计、添加、借贷、设置）
 - 右下角：浮动添加按钮（FAB）
-- 风格：现代简约，主色调绿色 #10B981
+- 风格：现代简约，主色调橙黄色 #fb923c
 ```
 
 ---
@@ -305,9 +305,9 @@ AGENTS.md
 1. [x] 生成 docs/requirements/RESEARCH.md
 2. [x] 生成 docs/requirements/PRD.md  
 3. [x] 执行 Step 2.1：使用 Pencil MCP + skill:pencil-ui-design 生成设计稿
-4. [ ] 生成 docs/design/TECH_DESIGN.md
-5. [ ] 生成项目根目录 AGENTS.md
-6. [ ] 初始化 Expo 项目（M1 里程碑）
+4. [x] 生成 docs/requirements/TECH_DESIGN.md
+5. [x] 生成项目根目录 AGENTS.md
+6. [x] 初始化 Expo 项目（M1 里程碑）
 ```
 
 ---

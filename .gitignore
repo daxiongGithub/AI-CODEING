@@ -1,0 +1,41 @@
+# PocketBook .gitignore (generated)
+
+# Node modules
+node_modules/
+
+# Expo
+.expo/
+.expo-shared/
+
+# Build output
+web-build/
+build/
+dist/
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# macOS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# TypeScript
+*.tsbuildinfo
+
+# Drizzle / migrations (optional, keep migrations in repo if desired)
+# db/migrations/
+
+# Project-specific ignores requested by user
+.ai/
+docs/
+AGENTS.md

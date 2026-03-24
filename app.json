@@ -1,0 +1,31 @@
+{
+  "expo": {
+    "name": "PocketBook",
+    "slug": "pocketbook",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "pocketbook",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.yourname.pocketbook"
+    },
+    "android": {
+      "package": "com.yourname.pocketbook"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-sqlite",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "PocketBook 需要访问您的相册以进行截图记账识别。",
+          "cameraPermission": "PocketBook 需要访问您的相机以拍照记账。"
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
