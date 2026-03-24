@@ -22,7 +22,8 @@
           "photosPermission": "PocketBook 需要访问您的相册以进行截图记账识别。",
           "cameraPermission": "PocketBook 需要访问您的相机以拍照记账。"
         }
-      ]
+      ],
+      "expo-asset"
     ],
     "experiments": {
       "typedRoutes": true

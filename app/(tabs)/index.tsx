@@ -1,13 +1,13 @@
-import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
-import { useRouter } from 'expo-router';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Plus } from 'lucide-react-native';
+import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { useRouter } from "expo-router";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { Plus } from "lucide-react-native";
 
 export default function HomeScreen() {
   const router = useRouter();
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50" edges={['bottom']}>
+    <SafeAreaView className="flex-1 bg-gray-50" edges={["bottom"]}>
       {/* 月度概览卡片 */}
       <View className="mx-4 mt-4 p-5 bg-orange-500 rounded-2xl">
         <Text className="text-white text-sm opacity-80">本月结余</Text>
@@ -34,7 +34,7 @@ export default function HomeScreen() {
       {/* FAB */}
       <TouchableOpacity
         className="absolute bottom-8 right-6 w-14 h-14 bg-orange-500 rounded-full items-center justify-center"
-        onPress={() => router.push('/add')}
+        onPress={() => router.push("/add")}
         activeOpacity={0.85}
       >
         <Plus color="#fff" size={28} />
