@@ -38,3 +38,12 @@ export const TEXT_TOKEN_MAP: Record<string, string> = {
 export const BRAND_COLOR = '#f97316'; // orange-500
 export const INCOME_COLOR = '#22c55e'; // green-500
 export const EXPENSE_COLOR = '#ef4444'; // red-500
+
+// 设计系统语义色（勿硬编码，统一从此引入）
+export const PRIMARY_BG_COLOR = '#fff7ed'; // orange-50, $primary_bg
+export const TEXT_MAIN_COLOR = '#18181b';  // zinc-900, $text_main
+export const TEXT_SECONDARY_COLOR = '#71717a'; // zinc-500, $text_secondary
+export const BORDER_COLOR = '#e4e4e7';     // zinc-200, $border
+export const BLUE_COLOR = '#3b82f6';       // blue-500
+export const BLUE_BG_COLOR = '#dbeafe';   // blue-100
+export const EMERALD_BG_COLOR = '#d1fae5'; // emerald-100

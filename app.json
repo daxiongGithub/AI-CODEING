@@ -6,6 +6,10 @@
     "orientation": "portrait",
     "scheme": "pocketbook",
     "userInterfaceStyle": "automatic",
+    "platforms": [
+      "ios",
+      "android"
+    ],
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.yourname.pocketbook"

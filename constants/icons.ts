@@ -1,0 +1,295 @@
+/**
+ * Lucide 图标注册表 — PocketBook
+ *
+ * 规则：图标名使用 kebab-case（与 lucide 官方名称一致），
+ * 组件使用 PascalCase。仅显式注册所需图标，避免打包全量 lucide。
+ */
+import {
+  // ──── 分类图标（支出）────
+  Utensils,
+  ShoppingBag,
+  Bus,
+  Gamepad2,
+  Home,
+  HeartPulse,
+  GraduationCap,
+  Plane,
+  Smartphone,
+  Dumbbell,
+  Cat,
+  Zap,
+  Wifi,
+  Scissors,
+  Car,
+  BookOpen,
+  Baby,
+  MoreHorizontal,
+  // ──── 分类图标（收入）────
+  Banknote,
+  TrendingUp,
+  Briefcase,
+  Gift,
+  // ──── 餐饮扩展 ────
+  Coffee,
+  Cookie,
+  Pizza,
+  Apple,
+  Beef,
+  Sandwich,
+  Soup,
+  Wine,
+  Cake,
+  IceCreamCone,
+  // ──── 出行扩展 ────
+  Bike,
+  Train,
+  Truck,
+  Ship,
+  Fuel,
+  MapPin,
+  Map,
+  Navigation,
+  // ──── 财务扩展 ────
+  Wallet,
+  CreditCard,
+  TrendingDown,
+  PiggyBank,
+  Receipt,
+  Percent,
+  DollarSign,
+  // ──── 购物扩展 ────
+  ShoppingCart,
+  Package,
+  Tag,
+  Shirt,
+  Gem,
+  // ──── 生活扩展 ────
+  House,
+  Droplets,
+  Flame,
+  Leaf,
+  Stethoscope,
+  Pill,
+  Activity,
+  HeartHandshake,
+  // ──── 娱乐扩展 ────
+  Film,
+  Music,
+  Trophy,
+  Gamepad,
+  Headphones,
+  Camera,
+  Ticket,
+  // ──── 学习扩展 ────
+  BookMarked,
+  Pencil,
+  Globe,
+  Microscope,
+  // ──── 通用 UI 图标 ────
+  Folder,
+  Plus,
+  X,
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  ChevronDown,
+  ChevronUp,
+  Search,
+  Settings,
+  Star,
+  Heart,
+  Bell,
+  Upload,
+  Download,
+  Share2,
+  Edit2,
+  Trash2,
+  MoreVertical,
+  Sunrise,
+  Moon,
+  Sun,
+  CalendarDays,
+  FilePenLine,
+  Clock,
+  AlertCircle,
+  Info,
+} from 'lucide-react-native';
+import type { LucideProps } from 'lucide-react-native';
+
+export type LucideIcon = React.ComponentType<LucideProps>;
+
+/** kebab-case 名称 → Lucide 组件 */
+export const ICON_MAP: Record<string, LucideIcon> = {
+  // 分类（支出）
+  utensils: Utensils,
+  'shopping-bag': ShoppingBag,
+  bus: Bus,
+  'gamepad-2': Gamepad2,
+  home: Home,
+  'heart-pulse': HeartPulse,
+  'graduation-cap': GraduationCap,
+  plane: Plane,
+  smartphone: Smartphone,
+  dumbbell: Dumbbell,
+  cat: Cat,
+  zap: Zap,
+  wifi: Wifi,
+  scissors: Scissors,
+  car: Car,
+  'book-open': BookOpen,
+  baby: Baby,
+  'more-horizontal': MoreHorizontal,
+  // 分类（收入）
+  banknote: Banknote,
+  'trending-up': TrendingUp,
+  briefcase: Briefcase,
+  gift: Gift,
+  // 餐饮
+  coffee: Coffee,
+  cookie: Cookie,
+  pizza: Pizza,
+  apple: Apple,
+  beef: Beef,
+  sandwich: Sandwich,
+  soup: Soup,
+  wine: Wine,
+  cake: Cake,
+  'ice-cream-cone': IceCreamCone,
+  // 出行
+  bike: Bike,
+  train: Train,
+  truck: Truck,
+  ship: Ship,
+  fuel: Fuel,
+  'map-pin': MapPin,
+  map: Map,
+  navigation: Navigation,
+  // 财务
+  wallet: Wallet,
+  'credit-card': CreditCard,
+  'trending-down': TrendingDown,
+  'piggy-bank': PiggyBank,
+  receipt: Receipt,
+  percent: Percent,
+  'dollar-sign': DollarSign,
+  // 购物
+  'shopping-cart': ShoppingCart,
+  package: Package,
+  tag: Tag,
+  shirt: Shirt,
+  gem: Gem,
+  // 生活
+  house: House,
+  droplets: Droplets,
+  flame: Flame,
+  leaf: Leaf,
+  stethoscope: Stethoscope,
+  pill: Pill,
+  activity: Activity,
+  'heart-handshake': HeartHandshake,
+  // 娱乐
+  film: Film,
+  music: Music,
+  trophy: Trophy,
+  gamepad: Gamepad,
+  headphones: Headphones,
+  camera: Camera,
+  ticket: Ticket,
+  // 学习
+  'book-marked': BookMarked,
+  pencil: Pencil,
+  globe: Globe,
+  microscope: Microscope,
+  // 通用 UI
+  folder: Folder,
+  plus: Plus,
+  x: X,
+  check: Check,
+  'chevron-left': ChevronLeft,
+  'chevron-right': ChevronRight,
+  'chevron-down': ChevronDown,
+  'chevron-up': ChevronUp,
+  search: Search,
+  settings: Settings,
+  star: Star,
+  heart: Heart,
+  bell: Bell,
+  upload: Upload,
+  download: Download,
+  share2: Share2,
+  'edit-2': Edit2,
+  'trash-2': Trash2,
+  'more-vertical': MoreVertical,
+  sunrise: Sunrise,
+  moon: Moon,
+  sun: Sun,
+  'calendar-days': CalendarDays,
+  'file-pen-line': FilePenLine,
+  clock: Clock,
+  'alert-circle': AlertCircle,
+  info: Info,
+};
+
+export type IconGroup = { label: string; icons: string[] };
+
+/** 图标选择器分组 */
+export const ICON_GROUPS: IconGroup[] = [
+  {
+    label: '通用',
+    icons: [
+      'folder', 'star', 'heart', 'home', 'house', 'bell', 'settings',
+      'search', 'clock', 'calendar-days', 'map-pin', 'map', 'globe',
+      'camera', 'gift', 'tag', 'gem', 'crown',
+    ],
+  },
+  {
+    label: '财务',
+    icons: [
+      'banknote', 'wallet', 'credit-card', 'trending-up', 'trending-down',
+      'piggy-bank', 'receipt', 'percent', 'dollar-sign', 'briefcase',
+    ],
+  },
+  {
+    label: '餐饮',
+    icons: [
+      'utensils', 'coffee', 'cookie', 'pizza', 'apple', 'beef',
+      'sandwich', 'soup', 'wine', 'cake', 'ice-cream-cone',
+    ],
+  },
+  {
+    label: '出行',
+    icons: [
+      'car', 'bus', 'plane', 'bike', 'train', 'truck', 'ship',
+      'fuel', 'navigation',
+    ],
+  },
+  {
+    label: '购物',
+    icons: [
+      'shopping-bag', 'shopping-cart', 'package', 'shirt',
+    ],
+  },
+  {
+    label: '生活',
+    icons: [
+      'heart-pulse', 'stethoscope', 'pill', 'activity', 'dumbbell',
+      'droplets', 'flame', 'leaf', 'zap', 'wifi', 'scissors',
+      'smartphone', 'headphones',
+    ],
+  },
+  {
+    label: '娱乐',
+    icons: [
+      'gamepad-2', 'gamepad', 'film', 'music', 'trophy', 'ticket',
+    ],
+  },
+  {
+    label: '学习',
+    icons: [
+      'graduation-cap', 'book-open', 'book-marked', 'pencil', 'microscope',
+    ],
+  },
+];
+
+/** 全部图标名（用于「全部」分组展示和搜索） */
+export const ALL_ICON_NAMES = Object.keys(ICON_MAP);
