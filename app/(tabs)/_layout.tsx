@@ -38,6 +38,7 @@ export default function TabLayout() {
         name="settings"
         options={{
           title: '设置',
+          headerShown: false,
           tabBarIcon: ({ color, size }) => (
             <Settings color={color} size={size} />
           ),

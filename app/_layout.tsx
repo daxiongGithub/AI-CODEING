@@ -42,7 +42,7 @@ export default function RootLayout() {
           }}
         />
         <Stack.Screen name="scan" options={{ title: '截图记账' }} />
-        <Stack.Screen name="categories" options={{ title: '分类管理' }} />
+        <Stack.Screen name="categories" options={{ title: '分类管理', headerShown: false }} />
       </Stack>
     </>
   );

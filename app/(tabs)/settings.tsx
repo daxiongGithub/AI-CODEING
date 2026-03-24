@@ -52,7 +52,7 @@ export default function SettingsScreen() {
   ];
 
   return (
-    <SafeAreaView className="flex-1 bg-zinc-50" edges={['bottom']}>
+    <SafeAreaView className="flex-1 bg-zinc-50" edges={['top', 'bottom']}>
       {/* 标题栏 */}
       <View
         className="items-center justify-center border-b border-zinc-200 bg-white"

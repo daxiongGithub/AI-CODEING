@@ -1,7 +1,7 @@
 import { View, Text, Alert, TouchableOpacity } from 'react-native';
 import { useState, useEffect, useCallback } from 'react';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useRouter, Stack } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 import { FlashList } from '@shopify/flash-list';
 import { ChevronLeft, Plus } from 'lucide-react-native';
 import { useCategoryStore } from '@/store/categoryStore';
@@ -28,8 +28,6 @@ export default function CategoriesScreen() {
   const currentType: CategoryType = typeIndex === 0 ? 'expense' : 'income';
   const categories: CategoryWithSubs[] =
     typeIndex === 0 ? allExpenseCategories : allIncomeCategories;
-
-  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     loadAllCategories();
@@ -76,10 +74,8 @@ export default function CategoriesScreen() {
   );
 
   return (
-    <View className="flex-1 bg-gray-50">
-      <Stack.Screen options={{ headerShown: false }} />
+    <SafeAreaView className="flex-1 bg-zinc-50" edges={['top', 'bottom']}>
       {/* 标题栏 */}
-      <SafeAreaView edges={['top']} className="bg-white" />
       <View
         className="flex-row items-center justify-between border-b border-zinc-200 bg-white px-4"
         style={{ height: 56 }}
@@ -111,7 +107,7 @@ export default function CategoriesScreen() {
       </View>
 
       {/* 类型 Tab切换 */}
-      <View className="items-center py-3">
+      <View className="items-center bg-white py-3">
         <SegmentedControl
           options={['支出分类', '收入分类']}
           selectedIndex={typeIndex}
@@ -120,13 +116,13 @@ export default function CategoriesScreen() {
       </View>
 
       {/* 说明文字 */}
-      <View className="px-4 pb-1">
+      <View className="px-4 py-1">
         <Text className="text-[11px] text-zinc-400">
           支持两级分类（一级 / 二级）；已使用分类仅可停用不可删除
         </Text>
       </View>
 
-      {/* 分类刕表 */}
+      {/* 分类列表 */}
       <FlashList
         data={categories}
         keyExtractor={(item) => item.id}
@@ -146,7 +142,7 @@ export default function CategoriesScreen() {
             </Text>
           </View>
         }
-        contentContainerStyle={{ paddingBottom: Math.max(insets.bottom, 24), paddingTop: 4 }}
+        contentContainerStyle={{ paddingBottom: 8, paddingTop: 4 }}
       />
 
       {/* 新增分类抽屉 */}
@@ -156,6 +152,6 @@ export default function CategoriesScreen() {
         initialType={currentType}
         onSaved={loadAllCategories}
       />
-    </View>
+    </SafeAreaView>
   );
 }

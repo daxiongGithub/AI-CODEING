@@ -9,31 +9,41 @@ import {
   KeyboardAvoidingView,
   Platform,
   Alert,
-} from 'react-native';
-import { useState } from 'react';
-import { X, Plus, Trash2, Folder } from 'lucide-react-native';
-import * as Crypto from 'expo-crypto';
-import { useCategoryStore } from '@/store/categoryStore';
-import type { CategoryType } from '@/types';
-import { SegmentedControl } from './SegmentedControl';
-import { IconPickerModal } from './IconPickerModal';
-import { ICON_MAP } from '@/constants/icons';
-import { BRAND_COLOR, PRIMARY_BG_COLOR, TEXT_SECONDARY_COLOR, BORDER_COLOR, EXPENSE_COLOR } from '@/constants/colors';
+  Dimensions,
+  Animated,
+} from "react-native";
+import { useState, useRef, useEffect } from "react";
+import { X, Plus, Trash2, Folder } from "lucide-react-native";
+import * as Crypto from "expo-crypto";
+import { useCategoryStore } from "@/store/categoryStore";
+import type { CategoryType } from "@/types";
+import { SegmentedControl } from "./SegmentedControl";
+import { IconPickerModal } from "./IconPickerModal";
+import { ICON_MAP } from "@/constants/icons";
+import {
+  BRAND_COLOR,
+  PRIMARY_BG_COLOR,
+  TEXT_SECONDARY_COLOR,
+  BORDER_COLOR,
+  EXPENSE_COLOR,
+} from "@/constants/colors";
+
+const SCREEN_HEIGHT = Dimensions.get("window").height;
 
 /** 12 种颜色 token 循环分配 */
 const COLOR_TOKENS = [
-  { bg: 'orange-100', text: 'text-orange-500' },
-  { bg: 'blue-100', text: 'text-blue-500' },
-  { bg: 'green-100', text: 'text-green-500' },
-  { bg: 'purple-100', text: 'text-purple-500' },
-  { bg: 'red-100', text: 'text-red-500' },
-  { bg: 'yellow-100', text: 'text-yellow-600' },
-  { bg: 'indigo-100', text: 'text-indigo-500' },
-  { bg: 'pink-100', text: 'text-pink-500' },
-  { bg: 'emerald-100', text: 'text-emerald-500' },
-  { bg: 'cyan-100', text: 'text-cyan-500' },
-  { bg: 'amber-100', text: 'text-amber-600' },
-  { bg: 'slate-100', text: 'text-slate-500' },
+  { bg: "orange-100", text: "text-orange-500" },
+  { bg: "blue-100", text: "text-blue-500" },
+  { bg: "green-100", text: "text-green-500" },
+  { bg: "purple-100", text: "text-purple-500" },
+  { bg: "red-100", text: "text-red-500" },
+  { bg: "yellow-100", text: "text-yellow-600" },
+  { bg: "indigo-100", text: "text-indigo-500" },
+  { bg: "pink-100", text: "text-pink-500" },
+  { bg: "emerald-100", text: "text-emerald-500" },
+  { bg: "cyan-100", text: "text-cyan-500" },
+  { bg: "amber-100", text: "text-amber-600" },
+  { bg: "slate-100", text: "text-slate-500" },
 ];
 
 interface SubItem {
@@ -70,11 +80,11 @@ function IconButton({
         height: circleSize,
         borderRadius: circleSize / 2,
         backgroundColor: PRIMARY_BG_COLOR,
-        justifyContent: 'center',
-        alignItems: 'center',
+        justifyContent: "center",
+        alignItems: "center",
         borderWidth: 1.5,
         borderColor: BRAND_COLOR,
-        borderStyle: 'dashed',
+        borderStyle: "dashed",
       }}
     >
       <IconComponent size={size} color={BRAND_COLOR} />
@@ -89,45 +99,75 @@ function IconButton({
 export function AddCategoryDrawer({
   visible,
   onClose,
-  initialType = 'expense',
+  initialType = "expense",
   onSaved,
 }: AddCategoryDrawerProps) {
-  const { addCategoryWithSubs, allExpenseCategories, allIncomeCategories, error, clearError } =
-    useCategoryStore();
+  const {
+    addCategoryWithSubs,
+    allExpenseCategories,
+    allIncomeCategories,
+    error,
+    clearError,
+  } = useCategoryStore();
 
-  const [typeIndex, setTypeIndex] = useState(initialType === 'expense' ? 0 : 1);
-  const [lv1Name, setLv1Name] = useState('');
-  const [lv1Icon, setLv1Icon] = useState('folder');
+  const [typeIndex, setTypeIndex] = useState(initialType === "expense" ? 0 : 1);
+  const [lv1Name, setLv1Name] = useState("");
+  const [lv1Icon, setLv1Icon] = useState("folder");
   const [subItems, setSubItems] = useState<SubItem[]>([]);
   const [isSaving, setIsSaving] = useState(false);
 
   // 图标选择器
-  const [iconPickerTarget, setIconPickerTarget] = useState<'lv1' | string | null>(null);
+  const [iconPickerTarget, setIconPickerTarget] = useState<
+    "lv1" | string | null
+  >(null);
 
-  const currentType: CategoryType = typeIndex === 0 ? 'expense' : 'income';
+  const currentType: CategoryType = typeIndex === 0 ? "expense" : "income";
+
+  // 卡片向上滑入动画：初始偏移 = 卡片高度（在屏幕下方）
+  const CARD_HEIGHT = SCREEN_HEIGHT * 0.8;
+  const slideAnim = useRef(new Animated.Value(CARD_HEIGHT)).current;
+
+  useEffect(() => {
+    if (visible) {
+      // 打开：从底部缓慢滑入
+      slideAnim.setValue(CARD_HEIGHT);
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 380,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [visible, slideAnim, CARD_HEIGHT]);
 
   function resetForm() {
-    setTypeIndex(initialType === 'expense' ? 0 : 1);
-    setLv1Name('');
-    setLv1Icon('folder');
+    setTypeIndex(initialType === "expense" ? 0 : 1);
+    setLv1Name("");
+    setLv1Icon("folder");
     setSubItems([]);
     setIsSaving(false);
     clearError();
   }
 
   function handleClose() {
-    resetForm();
-    onClose();
+    // 关闭：先向下滑出，动画结束后再真正关闭
+    Animated.timing(slideAnim, {
+      toValue: CARD_HEIGHT,
+      duration: 280,
+      useNativeDriver: true,
+    }).start(() => {
+      resetForm();
+      onClose();
+    });
   }
 
   function addSubItem() {
     if (subItems.length >= 10) {
-      Alert.alert('提示', '最多添加 10 个子分类');
+      Alert.alert("提示", "最多添加 10 个子分类");
       return;
     }
     setSubItems((prev) => [
       ...prev,
-      { key: Crypto.randomUUID(), name: '', icon: 'folder' },
+      { key: Crypto.randomUUID(), name: "", icon: "folder" },
     ]);
   }
 
@@ -136,11 +176,15 @@ export function AddCategoryDrawer({
   }
 
   function updateSubName(key: string, name: string) {
-    setSubItems((prev) => prev.map((s) => (s.key === key ? { ...s, name } : s)));
+    setSubItems((prev) =>
+      prev.map((s) => (s.key === key ? { ...s, name } : s)),
+    );
   }
 
   function updateSubIcon(key: string, icon: string) {
-    setSubItems((prev) => prev.map((s) => (s.key === key ? { ...s, icon } : s)));
+    setSubItems((prev) =>
+      prev.map((s) => (s.key === key ? { ...s, icon } : s)),
+    );
   }
 
   async function handleSave() {
@@ -148,22 +192,22 @@ export function AddCategoryDrawer({
 
     // 校验：名称非空
     if (!trimmedName) {
-      Alert.alert('提示', '请输入分类名称');
+      Alert.alert("提示", "请输入分类名称");
       return;
     }
     // 校验：名称长度
     if (trimmedName.length > 12) {
-      Alert.alert('提示', '分类名称不得超过 12 个字符');
+      Alert.alert("提示", "分类名称不得超过 12 个字符");
       return;
     }
     // 校验：同类型下不可重名
     const existingList =
-      currentType === 'expense' ? allExpenseCategories : allIncomeCategories;
+      currentType === "expense" ? allExpenseCategories : allIncomeCategories;
     const isDuplicate = existingList.some(
       (c) => c.name.trim() === trimmedName && c.enabled,
     );
     if (isDuplicate) {
-      Alert.alert('提示', '该类型下已存在同名分类，请修改名称');
+      Alert.alert("提示", "该类型下已存在同名分类，请修改名称");
       return;
     }
 
@@ -171,7 +215,7 @@ export function AddCategoryDrawer({
     const validSubs = subItems.filter((s) => s.name.trim().length > 0);
     for (const sub of validSubs) {
       if (sub.name.trim().length > 12) {
-        Alert.alert('提示', `子分类「${sub.name}」名称不得超过 12 个字符`);
+        Alert.alert("提示", `子分类「${sub.name}」名称不得超过 12 个字符`);
         return;
       }
     }
@@ -210,54 +254,60 @@ export function AddCategoryDrawer({
       onSaved?.();
       onClose();
     } catch {
-      Alert.alert('保存失败', '请稍后重试');
+      Alert.alert("保存失败", "请稍后重试");
     } finally {
       setIsSaving(false);
     }
   }
 
   return (
-    <>
-      <Modal
-        visible={visible}
-        animationType="slide"
-        transparent
-        onRequestClose={handleClose}
-      >
-        {/* 固定黑色遮罩 */}
-        <Pressable
-          style={[{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }, { backgroundColor: 'rgba(0,0,0,0.4)' }]}
-          onPress={handleClose}
-        />
-
+    <Modal
+      visible={visible}
+      animationType="fade"
+      transparent
+      onRequestClose={handleClose}
+    >
+      <View style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.4)" }}>
+        {/* 遮罩层：绝对定位，不参与滚动布局 */}
+        <Pressable className="absolute inset-0" onPress={handleClose} />
+        {/* 内容区：独立于遮罩，居底 */}
         <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-          style={{ flex: 1 }}
-          pointerEvents="box-none"
+          style={{ flex: 1, justifyContent: "flex-end" }}
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
         >
-          <View className="flex-1 justify-end" pointerEvents="box-none">
-            <View
-              className="w-full bg-white"
-              style={{ borderTopLeftRadius: 20, borderTopRightRadius: 20, maxHeight: '80%' }}
-            >
-              {/* ── 标题栏 ── */}
-              <View className="flex-row items-center justify-between px-4 pt-3.5" style={{ height: 52 }}>
-                <Text className="text-[18px] font-semibold text-zinc-900">新增分类</Text>
-                <TouchableOpacity
-                  activeOpacity={0.7}
-                  onPress={handleClose}
-                  className="h-7 w-7 items-center justify-center rounded-full bg-gray-100"
-                >
-                  <X size={14} color="#71717a" />
-                </TouchableOpacity>
-              </View>
-
-              <ScrollView
-                style={{ flexShrink: 1 }}
-                showsVerticalScrollIndicator={false}
-                keyboardShouldPersistTaps="handled"
-                contentContainerStyle={{ padding: 14, gap: 12 }}
+          <Pressable onPress={() => {}}>
+            <Animated.View
+                className="w-full bg-white"
+                style={{
+                  borderTopLeftRadius: 20,
+                  borderTopRightRadius: 20,
+                  height: SCREEN_HEIGHT * 0.8,
+                  transform: [{ translateY: slideAnim }],
+                }}
               >
+                {/* ── 标题栏 ── */}
+                <View
+                  className="flex-row items-center justify-between px-4 pt-3.5"
+                  style={{ height: 52 }}
+                >
+                  <Text className="text-[18px] font-semibold text-zinc-900">
+                    新增分类
+                  </Text>
+                  <TouchableOpacity
+                    activeOpacity={0.7}
+                    onPress={handleClose}
+                    className="h-7 w-7 items-center justify-center rounded-full bg-gray-100"
+                  >
+                    <X size={14} color="#71717a" />
+                  </TouchableOpacity>
+                </View>
+
+                <ScrollView
+                  style={{ flex: 1 }}
+                  showsVerticalScrollIndicator={false}
+                  keyboardShouldPersistTaps="handled"
+                  contentContainerStyle={{ padding: 14, gap: 12 }}
+                >
                   {/* 说明文字 */}
                   <Text className="text-[12px] text-zinc-400">
                     名称必填；支持维护一级图标并批量新增子分类
@@ -266,21 +316,29 @@ export function AddCategoryDrawer({
                   {/* 类型切换 */}
                   <View className="items-center">
                     <SegmentedControl
-                      options={['支出分类', '收入分类']}
+                      options={["支出分类", "收入分类"]}
                       selectedIndex={typeIndex}
                       onChange={setTypeIndex}
                     />
                   </View>
 
                   {/* ── 一级分类输入行 ── */}
-                  <Text className="text-[12px] font-semibold text-zinc-900">一级分类</Text>
-                  <View className="flex-row overflow-hidden rounded-[10px] border border-zinc-200 bg-white" style={{ height: 44 }}>
+                  <Text className="text-[12px] font-semibold text-zinc-900">
+                    一级分类
+                  </Text>
+                  <View
+                    className="flex-row overflow-hidden rounded-[10px] border border-zinc-200 bg-white"
+                    style={{ height: 44 }}
+                  >
                     {/* 图标按钮 */}
                     <TouchableOpacity
                       activeOpacity={0.7}
-                      onPress={() => setIconPickerTarget('lv1')}
+                      onPress={() => setIconPickerTarget("lv1")}
                       className="h-full w-[44px] items-center justify-center rounded-l-[10px] bg-gray-50"
-                      style={{ borderRightWidth: 1, borderRightColor: BORDER_COLOR }}
+                      style={{
+                        borderRightWidth: 1,
+                        borderRightColor: BORDER_COLOR,
+                      }}
                     >
                       <View
                         style={{
@@ -288,8 +346,8 @@ export function AddCategoryDrawer({
                           height: 24,
                           borderRadius: 12,
                           backgroundColor: PRIMARY_BG_COLOR,
-                          justifyContent: 'center',
-                          alignItems: 'center',
+                          justifyContent: "center",
+                          alignItems: "center",
                         }}
                       >
                         {(() => {
@@ -325,7 +383,10 @@ export function AddCategoryDrawer({
                         activeOpacity={0.7}
                         onPress={() => setIconPickerTarget(sub.key)}
                         className="h-full w-[44px] items-center justify-center bg-gray-50"
-                        style={{ borderRightWidth: 1, borderRightColor: BORDER_COLOR }}
+                        style={{
+                          borderRightWidth: 1,
+                          borderRightColor: BORDER_COLOR,
+                        }}
                       >
                         <View
                           style={{
@@ -333,8 +394,8 @@ export function AddCategoryDrawer({
                             height: 24,
                             borderRadius: 12,
                             backgroundColor: PRIMARY_BG_COLOR,
-                            justifyContent: 'center',
-                            alignItems: 'center',
+                            justifyContent: "center",
+                            alignItems: "center",
                           }}
                         >
                           {(() => {
@@ -370,7 +431,9 @@ export function AddCategoryDrawer({
                     className="flex-row items-center justify-center gap-1.5 rounded-[10px] border border-dashed border-zinc-300 bg-gray-50 py-2.5"
                   >
                     <Plus size={16} color={TEXT_SECONDARY_COLOR} />
-                    <Text className="text-[13px] text-zinc-500">添加子分类</Text>
+                    <Text className="text-[13px] text-zinc-500">
+                      添加子分类
+                    </Text>
                   </TouchableOpacity>
 
                   {/* 提示文字 */}
@@ -395,25 +458,26 @@ export function AddCategoryDrawer({
                     style={{ height: 44, opacity: isSaving ? 0.6 : 1 }}
                   >
                     <Text className="text-[14px] font-semibold text-white">
-                      {isSaving ? '保存中...' : '保存并创建完整层级'}
+                      {isSaving ? "保存中..." : "保存并创建完整层级"}
                     </Text>
                   </TouchableOpacity>
-                </View>
               </View>
-          </View>
+            </Animated.View>
+          </Pressable>
         </KeyboardAvoidingView>
-      </Modal>
+      </View>
 
-      {/* 图标选择器 */}
+      {/* 图标选择器：在 Modal 内部渲染，才能正确叠加在抽屉上方 */}
       <IconPickerModal
         visible={iconPickerTarget !== null}
         selectedIcon={
-          iconPickerTarget === 'lv1'
+          iconPickerTarget === "lv1"
             ? lv1Icon
-            : (subItems.find((s) => s.key === iconPickerTarget)?.icon ?? 'folder')
+            : (subItems.find((s) => s.key === iconPickerTarget)?.icon ??
+              "folder")
         }
         onConfirm={(iconName) => {
-          if (iconPickerTarget === 'lv1') {
+          if (iconPickerTarget === "lv1") {
             setLv1Icon(iconName);
           } else if (iconPickerTarget) {
             updateSubIcon(iconPickerTarget, iconName);
@@ -421,6 +485,6 @@ export function AddCategoryDrawer({
         }}
         onClose={() => setIconPickerTarget(null)}
       />
-    </>
+    </Modal>
   );
 }

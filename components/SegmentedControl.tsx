@@ -23,8 +23,8 @@ export function SegmentedControl({
 }: SegmentedControlProps) {
   return (
     <View
-      className="flex-row rounded-[10px] p-[3px]"
-      style={{ width, height: 34, backgroundColor: '#f9fafb' }}
+      className="flex-row rounded-[10px] bg-gray-50 p-[3px]"
+      style={{ width, height: 34 }}
     >
       {options.map((label, index) => {
         const isActive = index === selectedIndex;
