@@ -29,6 +29,7 @@ interface CategoryState {
     categoryData: NewCategory,
     subList: NewSubCategoryInput[],
   ) => Promise<void>;
+  addSubCategory: (parentId: string, subData: NewSubCategoryInput) => Promise<void>;
   toggleEnabled: (id: string, enabled: boolean) => Promise<void>;
   clearError: () => void;
 }
@@ -120,6 +121,27 @@ export const useCategoryStore = create<CategoryState>((set) => ({
     } catch {
       set({ error: '新增分类失败' });
       throw new Error('addCategoryWithSubs failed');
+    }
+  },
+
+  addSubCategory: async (parentId: string, subData: NewSubCategoryInput) => {
+    try {
+      await insertSubCategory({ ...subData, parentCategoryId: parentId });
+      const [expense, income, allExp, allInc] = await Promise.all([
+        getAllCategories('expense'),
+        getAllCategories('income'),
+        getAllCategoriesAll('expense'),
+        getAllCategoriesAll('income'),
+      ]);
+      set({
+        expenseCategories: expense,
+        incomeCategories: income,
+        allExpenseCategories: allExp,
+        allIncomeCategories: allInc,
+      });
+    } catch {
+      set({ error: '新增二级分类失败' });
+      throw new Error('addSubCategory failed');
     }
   },
 

@@ -4,31 +4,27 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  ScrollView,
   Pressable,
   KeyboardAvoidingView,
   Platform,
   Alert,
-  Dimensions,
   Animated,
 } from "react-native";
 import { useState, useRef, useEffect } from "react";
-import { X, Plus, Trash2, Folder } from "lucide-react-native";
+import { X, Folder } from "lucide-react-native";
 import * as Crypto from "expo-crypto";
 import { useCategoryStore } from "@/store/categoryStore";
-import type { CategoryType } from "@/types";
+import type { CategoryType, CategoryWithSubs } from "@/types";
 import { SegmentedControl } from "./SegmentedControl";
 import { IconPickerModal } from "./IconPickerModal";
+import { CategoryIcon } from "./CategoryIcon";
 import { ICON_MAP } from "@/constants/icons";
 import {
   BRAND_COLOR,
   PRIMARY_BG_COLOR,
   TEXT_SECONDARY_COLOR,
   BORDER_COLOR,
-  EXPENSE_COLOR,
 } from "@/constants/colors";
-
-const SCREEN_HEIGHT = Dimensions.get("window").height;
 
 /** 12 种颜色 token 循环分配 */
 const COLOR_TOKENS = [
@@ -46,90 +42,50 @@ const COLOR_TOKENS = [
   { bg: "slate-100", text: "text-slate-500" },
 ];
 
-interface SubItem {
-  key: string;
-  name: string;
-  icon: string;
-}
-
 interface AddCategoryDrawerProps {
   visible: boolean;
   onClose: () => void;
+  /** 决定抽屉内容：add_l1 = 新增一级分类，add_l2 = 添加二级分类 */
+  mode: "add_l1" | "add_l2";
+  /** 仅 add_l1 时有效，默认 expense */
   initialType?: CategoryType;
+  /** 仅 add_l2 时需要，展示并锁定父级分类 */
+  parentCategory?: CategoryWithSubs;
   onSaved?: () => void;
-}
-
-function IconButton({
-  iconName,
-  onPress,
-  size = 24,
-  circleSize = 44,
-}: {
-  iconName: string;
-  onPress: () => void;
-  size?: number;
-  circleSize?: number;
-}) {
-  const IconComponent = ICON_MAP[iconName] ?? Folder;
-  return (
-    <TouchableOpacity
-      activeOpacity={0.7}
-      onPress={onPress}
-      style={{
-        width: circleSize,
-        height: circleSize,
-        borderRadius: circleSize / 2,
-        backgroundColor: PRIMARY_BG_COLOR,
-        justifyContent: "center",
-        alignItems: "center",
-        borderWidth: 1.5,
-        borderColor: BRAND_COLOR,
-        borderStyle: "dashed",
-      }}
-    >
-      <IconComponent size={size} color={BRAND_COLOR} />
-    </TouchableOpacity>
-  );
 }
 
 /**
  * AddCategoryDrawer — 容器组件（使用 categoryStore）
- * 底部滑出抽屉，支持创建一级分类 + 批量创建子分类。
+ * 底部滑出抽屉，双模式：add_l1 新增一级分类 / add_l2 添加二级分类。
  */
 export function AddCategoryDrawer({
   visible,
   onClose,
+  mode,
   initialType = "expense",
+  parentCategory,
   onSaved,
 }: AddCategoryDrawerProps) {
   const {
-    addCategoryWithSubs,
+    addCategory,
+    addSubCategory,
     allExpenseCategories,
     allIncomeCategories,
-    error,
     clearError,
   } = useCategoryStore();
 
   const [typeIndex, setTypeIndex] = useState(initialType === "expense" ? 0 : 1);
-  const [lv1Name, setLv1Name] = useState("");
-  const [lv1Icon, setLv1Icon] = useState("folder");
-  const [subItems, setSubItems] = useState<SubItem[]>([]);
+  const [name, setName] = useState("");
+  const [icon, setIcon] = useState("folder");
   const [isSaving, setIsSaving] = useState(false);
-
-  // 图标选择器
-  const [iconPickerTarget, setIconPickerTarget] = useState<
-    "lv1" | string | null
-  >(null);
+  const [iconPickerVisible, setIconPickerVisible] = useState(false);
 
   const currentType: CategoryType = typeIndex === 0 ? "expense" : "income";
-
-  // 卡片向上滑入动画：初始偏移 = 卡片高度（在屏幕下方）
-  const CARD_HEIGHT = SCREEN_HEIGHT * 0.8;
+  const CARD_HEIGHT = mode === "add_l1" ? 480 : 420;
   const slideAnim = useRef(new Animated.Value(CARD_HEIGHT)).current;
 
   useEffect(() => {
     if (visible) {
-      // 打开：从底部缓慢滑入
       slideAnim.setValue(CARD_HEIGHT);
       Animated.timing(slideAnim, {
         toValue: 0,
@@ -139,17 +95,21 @@ export function AddCategoryDrawer({
     }
   }, [visible, slideAnim, CARD_HEIGHT]);
 
+  // 每次打开时同步 initialType
+  useEffect(() => {
+    if (visible) {
+      setTypeIndex(initialType === "expense" ? 0 : 1);
+    }
+  }, [visible, initialType]);
+
   function resetForm() {
-    setTypeIndex(initialType === "expense" ? 0 : 1);
-    setLv1Name("");
-    setLv1Icon("folder");
-    setSubItems([]);
+    setName("");
+    setIcon("folder");
     setIsSaving(false);
     clearError();
   }
 
   function handleClose() {
-    // 关闭：先向下滑出，动画结束后再真正关闭
     Animated.timing(slideAnim, {
       toValue: CARD_HEIGHT,
       duration: 280,
@@ -160,80 +120,37 @@ export function AddCategoryDrawer({
     });
   }
 
-  function addSubItem() {
-    if (subItems.length >= 10) {
-      Alert.alert("提示", "最多添加 10 个子分类");
-      return;
-    }
-    setSubItems((prev) => [
-      ...prev,
-      { key: Crypto.randomUUID(), name: "", icon: "folder" },
-    ]);
-  }
-
-  function removeSubItem(key: string) {
-    setSubItems((prev) => prev.filter((s) => s.key !== key));
-  }
-
-  function updateSubName(key: string, name: string) {
-    setSubItems((prev) =>
-      prev.map((s) => (s.key === key ? { ...s, name } : s)),
-    );
-  }
-
-  function updateSubIcon(key: string, icon: string) {
-    setSubItems((prev) =>
-      prev.map((s) => (s.key === key ? { ...s, icon } : s)),
-    );
-  }
-
   async function handleSave() {
-    const trimmedName = lv1Name.trim();
-
-    // 校验：名称非空
+    const trimmedName = name.trim();
     if (!trimmedName) {
       Alert.alert("提示", "请输入分类名称");
       return;
     }
-    // 校验：名称长度
     if (trimmedName.length > 12) {
       Alert.alert("提示", "分类名称不得超过 12 个字符");
       return;
     }
-    // 校验：同类型下不可重名
-    const existingList =
-      currentType === "expense" ? allExpenseCategories : allIncomeCategories;
-    const isDuplicate = existingList.some(
-      (c) => c.name.trim() === trimmedName && c.enabled,
-    );
-    if (isDuplicate) {
-      Alert.alert("提示", "该类型下已存在同名分类，请修改名称");
-      return;
-    }
 
-    // 校验子分类
-    const validSubs = subItems.filter((s) => s.name.trim().length > 0);
-    for (const sub of validSubs) {
-      if (sub.name.trim().length > 12) {
-        Alert.alert("提示", `子分类「${sub.name}」名称不得超过 12 个字符`);
+    if (mode === "add_l1") {
+      const existingList =
+        currentType === "expense" ? allExpenseCategories : allIncomeCategories;
+      const isDuplicate = existingList.some(
+        (c) => c.name.trim() === trimmedName,
+      );
+      if (isDuplicate) {
+        Alert.alert("提示", "该类型下已存在同名分类，请修改名称");
         return;
       }
-    }
-
-    // 自动分配颜色 token
-    const colorIdx = existingList.length % COLOR_TOKENS.length;
-    const colors = COLOR_TOKENS[colorIdx] ?? COLOR_TOKENS[0]!;
-    const now = new Date().toISOString();
-    const categoryId = Crypto.randomUUID();
-
-    setIsSaving(true);
-    try {
-      await addCategoryWithSubs(
-        {
-          id: categoryId,
+      const colorIdx = existingList.length % COLOR_TOKENS.length;
+      const colors = COLOR_TOKENS[colorIdx] ?? COLOR_TOKENS[0]!;
+      const now = new Date().toISOString();
+      setIsSaving(true);
+      try {
+        await addCategory({
+          id: Crypto.randomUUID(),
           type: currentType,
           name: trimmedName,
-          icon: lv1Icon,
+          icon,
           colorTokenBg: colors.bg,
           colorTokenText: colors.text,
           sortOrder: existingList.length + 1,
@@ -241,24 +158,50 @@ export function AddCategoryDrawer({
           isPreset: false,
           createdAt: now,
           updatedAt: now,
-        },
-        validSubs.map((sub, idx) => ({
-          id: Crypto.randomUUID(),
-          name: sub.name.trim(),
-          icon: sub.icon,
-          sortOrder: idx + 1,
-          enabled: true,
-        })),
+        });
+        resetForm();
+        onSaved?.();
+        onClose();
+      } catch {
+        Alert.alert("保存失败", "请稍后重试");
+      } finally {
+        setIsSaving(false);
+      }
+    } else {
+      // add_l2 mode
+      if (!parentCategory) {
+        Alert.alert("错误", "未选择一级分类");
+        return;
+      }
+      const isDuplicate = parentCategory.subCategories.some(
+        (s) => s.name.trim() === trimmedName,
       );
-      resetForm();
-      onSaved?.();
-      onClose();
-    } catch {
-      Alert.alert("保存失败", "请稍后重试");
-    } finally {
-      setIsSaving(false);
+      if (isDuplicate) {
+        Alert.alert("提示", "该父分类下已存在同名子分类，请修改名称");
+        return;
+      }
+      setIsSaving(true);
+      try {
+        await addSubCategory(parentCategory.id, {
+          id: Crypto.randomUUID(),
+          name: trimmedName,
+          icon,
+          sortOrder: parentCategory.subCategories.length + 1,
+          enabled: true,
+        });
+        resetForm();
+        onSaved?.();
+        onClose();
+      } catch {
+        Alert.alert("保存失败", "请稍后重试");
+      } finally {
+        setIsSaving(false);
+      }
     }
   }
+
+  const IconComponent = ICON_MAP[icon] ?? Folder;
+  const canSave = name.trim().length > 0 && !isSaving;
 
   return (
     <Modal
@@ -268,222 +211,181 @@ export function AddCategoryDrawer({
       onRequestClose={handleClose}
     >
       <View style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.4)" }}>
-        {/* 遮罩层：绝对定位，不参与滚动布局 */}
+        {/* 遮罩层 */}
         <Pressable className="absolute inset-0" onPress={handleClose} />
-        {/* 内容区：独立于遮罩，居底 */}
         <KeyboardAvoidingView
           style={{ flex: 1, justifyContent: "flex-end" }}
           behavior={Platform.OS === "ios" ? "padding" : undefined}
         >
           <Pressable onPress={() => {}}>
             <Animated.View
-                className="w-full bg-white"
-                style={{
-                  borderTopLeftRadius: 20,
-                  borderTopRightRadius: 20,
-                  height: SCREEN_HEIGHT * 0.8,
-                  transform: [{ translateY: slideAnim }],
-                }}
-              >
-                {/* ── 标题栏 ── */}
+              className="w-full bg-white"
+              style={{
+                borderTopLeftRadius: 20,
+                borderTopRightRadius: 20,
+                height: CARD_HEIGHT,
+                transform: [{ translateY: slideAnim }],
+              }}
+            >
+              {/* Handle Bar */}
+              <View className="items-center pt-3">
                 <View
-                  className="flex-row items-center justify-between px-4 pt-3.5"
-                  style={{ height: 52 }}
+                  style={{
+                    width: 40,
+                    height: 4,
+                    borderRadius: 2,
+                    backgroundColor: BORDER_COLOR,
+                  }}
+                />
+              </View>
+
+              {/* Title Row */}
+              <View
+                className="flex-row items-center justify-between px-4"
+                style={{ height: 52 }}
+              >
+                <Text className="text-[18px] font-semibold text-zinc-900">
+                  {mode === "add_l1" ? "新增一级分类" : "添加二级分类"}
+                </Text>
+                <TouchableOpacity
+                  activeOpacity={0.7}
+                  onPress={handleClose}
+                  className="h-7 w-7 items-center justify-center rounded-full bg-gray-100"
                 >
-                  <Text className="text-[18px] font-semibold text-zinc-900">
-                    新增分类
-                  </Text>
-                  <TouchableOpacity
-                    activeOpacity={0.7}
-                    onPress={handleClose}
-                    className="h-7 w-7 items-center justify-center rounded-full bg-gray-100"
-                  >
-                    <X size={14} color="#71717a" />
-                  </TouchableOpacity>
+                  <X size={14} color="#71717a" />
+                </TouchableOpacity>
+              </View>
+
+              {/* Type Selector (add_l1 only) */}
+              {mode === "add_l1" && (
+                <View
+                  className="items-center"
+                  style={{
+                    paddingVertical: 12,
+                    borderBottomWidth: 1,
+                    borderBottomColor: BORDER_COLOR,
+                  }}
+                >
+                  <SegmentedControl
+                    options={["支出分类", "收入分类"]}
+                    selectedIndex={typeIndex}
+                    onChange={setTypeIndex}
+                  />
                 </View>
+              )}
 
-                <ScrollView
-                  style={{ flex: 1 }}
-                  showsVerticalScrollIndicator={false}
-                  keyboardShouldPersistTaps="handled"
-                  contentContainerStyle={{ padding: 14, gap: 12 }}
+              {/* Parent Info Row (add_l2 only) */}
+              {mode === "add_l2" && parentCategory && (
+                <View
+                  className="mx-4 flex-row items-center rounded-xl px-3"
+                  style={{
+                    height: 52,
+                    backgroundColor: PRIMARY_BG_COLOR,
+                    marginTop: 4,
+                  }}
                 >
-                  {/* 说明文字 */}
-                  <Text className="text-[12px] text-zinc-400">
-                    名称必填；支持维护一级图标并批量新增子分类
-                  </Text>
-
-                  {/* 类型切换 */}
-                  <View className="items-center">
-                    <SegmentedControl
-                      options={["支出分类", "收入分类"]}
-                      selectedIndex={typeIndex}
-                      onChange={setTypeIndex}
-                    />
-                  </View>
-
-                  {/* ── 一级分类输入行 ── */}
-                  <Text className="text-[12px] font-semibold text-zinc-900">
-                    一级分类
+                  <CategoryIcon
+                    iconName={parentCategory.icon}
+                    bgToken={parentCategory.colorTokenBg}
+                    textToken={parentCategory.colorTokenText}
+                    size={14}
+                    circleSize={28}
+                  />
+                  <Text
+                    className="ml-2.5 flex-1 text-[14px] font-medium text-zinc-900"
+                    numberOfLines={1}
+                  >
+                    {parentCategory.name}
                   </Text>
                   <View
-                    className="flex-row overflow-hidden rounded-[10px] border border-zinc-200 bg-white"
-                    style={{ height: 44 }}
+                    style={{
+                      backgroundColor: BRAND_COLOR,
+                      borderRadius: 4,
+                      paddingHorizontal: 6,
+                      paddingVertical: 2,
+                    }}
                   >
-                    {/* 图标按钮 */}
-                    <TouchableOpacity
-                      activeOpacity={0.7}
-                      onPress={() => setIconPickerTarget("lv1")}
-                      className="h-full w-[44px] items-center justify-center rounded-l-[10px] bg-gray-50"
-                      style={{
-                        borderRightWidth: 1,
-                        borderRightColor: BORDER_COLOR,
-                      }}
+                    <Text
+                      style={{ fontSize: 10, fontWeight: "600", color: "#fff" }}
                     >
-                      <View
-                        style={{
-                          width: 24,
-                          height: 24,
-                          borderRadius: 12,
-                          backgroundColor: PRIMARY_BG_COLOR,
-                          justifyContent: "center",
-                          alignItems: "center",
-                        }}
-                      >
-                        {(() => {
-                          const Ic = ICON_MAP[lv1Icon] ?? Folder;
-                          return <Ic size={14} color={BRAND_COLOR} />;
-                        })()}
-                      </View>
-                    </TouchableOpacity>
-                    {/* 名称输入 */}
-                    <TextInput
-                      className="flex-1 px-3 text-[13px] text-zinc-900"
-                      placeholder="输入一级分类名称（最多 12 字）"
-                      placeholderTextColor={TEXT_SECONDARY_COLOR}
-                      value={lv1Name}
-                      onChangeText={setLv1Name}
-                      maxLength={12}
-                    />
+                      一级
+                    </Text>
                   </View>
+                </View>
+              )}
 
-                  {/* ── 子分类区 ── */}
-                  <Text className="text-[12px] font-semibold text-zinc-900">
-                    子分类（保存到当前选中的一级分类，选填）
-                  </Text>
-
-                  {subItems.map((sub) => (
-                    <View
-                      key={sub.key}
-                      className="flex-row overflow-hidden rounded-[10px] border border-zinc-200 bg-white"
-                      style={{ height: 40 }}
-                    >
-                      {/* 图标按钮 */}
-                      <TouchableOpacity
-                        activeOpacity={0.7}
-                        onPress={() => setIconPickerTarget(sub.key)}
-                        className="h-full w-[44px] items-center justify-center bg-gray-50"
-                        style={{
-                          borderRightWidth: 1,
-                          borderRightColor: BORDER_COLOR,
-                        }}
-                      >
-                        <View
-                          style={{
-                            width: 24,
-                            height: 24,
-                            borderRadius: 12,
-                            backgroundColor: PRIMARY_BG_COLOR,
-                            justifyContent: "center",
-                            alignItems: "center",
-                          }}
-                        >
-                          {(() => {
-                            const Ic = ICON_MAP[sub.icon] ?? Folder;
-                            return <Ic size={14} color={BRAND_COLOR} />;
-                          })()}
-                        </View>
-                      </TouchableOpacity>
-                      {/* 名称 */}
-                      <TextInput
-                        className="flex-1 px-3 text-[13px] text-zinc-900"
-                        placeholder="子分类名称（最多 12 字）"
-                        placeholderTextColor={TEXT_SECONDARY_COLOR}
-                        value={sub.name}
-                        onChangeText={(v) => updateSubName(sub.key, v)}
-                        maxLength={12}
-                      />
-                      {/* 删除 */}
-                      <TouchableOpacity
-                        activeOpacity={0.7}
-                        onPress={() => removeSubItem(sub.key)}
-                        className="h-full w-10 items-center justify-center"
-                      >
-                        <Trash2 size={16} color={EXPENSE_COLOR} />
-                      </TouchableOpacity>
-                    </View>
-                  ))}
-
-                  {/* 添加子分类按钮 */}
+              {/* Form Section */}
+              <View style={{ paddingHorizontal: 16, gap: 16, marginTop: 20 }}>
+                {/* Icon Selector Row */}
+                <View className="flex-row items-center gap-3">
                   <TouchableOpacity
                     activeOpacity={0.7}
-                    onPress={addSubItem}
-                    className="flex-row items-center justify-center gap-1.5 rounded-[10px] border border-dashed border-zinc-300 bg-gray-50 py-2.5"
+                    onPress={() => setIconPickerVisible(true)}
+                    style={{
+                      width: 52,
+                      height: 52,
+                      borderRadius: 26,
+                      backgroundColor: PRIMARY_BG_COLOR,
+                      justifyContent: "center",
+                      alignItems: "center",
+                      borderWidth: 1.5,
+                      borderColor: BRAND_COLOR,
+                      borderStyle: "dashed",
+                    }}
                   >
-                    <Plus size={16} color={TEXT_SECONDARY_COLOR} />
-                    <Text className="text-[13px] text-zinc-500">
-                      添加子分类
-                    </Text>
+                    <IconComponent size={24} color={BRAND_COLOR} />
                   </TouchableOpacity>
+                  <Text style={{ fontSize: 13, color: TEXT_SECONDARY_COLOR }}>
+                    点击选择图标
+                  </Text>
+                </View>
 
-                  {/* 提示文字 */}
-                  <View className="flex-row items-center gap-2 rounded-[10px] bg-orange-50 px-3 py-2">
-                    <Folder size={16} color={BRAND_COLOR} />
-                    <Text className="flex-1 text-[12px] font-medium text-orange-500">
-                      未选择图标时，系统默认使用 folder
-                    </Text>
-                  </View>
+                {/* Name Input */}
+                <View
+                  className="overflow-hidden rounded-[10px] border border-zinc-200 bg-white"
+                  style={{ height: 44 }}
+                >
+                  <TextInput
+                    className="flex-1 px-3 text-[14px] text-zinc-900"
+                    placeholder="分类名称，最多 12 字"
+                    placeholderTextColor={TEXT_SECONDARY_COLOR}
+                    value={name}
+                    onChangeText={setName}
+                    maxLength={12}
+                  />
+                </View>
+              </View>
 
-                  {/* 底部占位 */}
-                  <View style={{ height: 8 }} />
-                </ScrollView>
+              {/* Spacer */}
+              <View style={{ flex: 1 }} />
 
-                {/* ── 保存按钮 ── */}
-                <View className="border-t border-zinc-200 bg-white px-4 py-3.5">
-                  <TouchableOpacity
-                    activeOpacity={0.8}
-                    onPress={handleSave}
-                    disabled={isSaving}
-                    className="items-center justify-center rounded-xl bg-orange-500"
-                    style={{ height: 44, opacity: isSaving ? 0.6 : 1 }}
-                  >
-                    <Text className="text-[14px] font-semibold text-white">
-                      {isSaving ? "保存中..." : "保存并创建完整层级"}
-                    </Text>
-                  </TouchableOpacity>
+              {/* Save Button */}
+              <View style={{ paddingHorizontal: 16, paddingBottom: 32 }}>
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  onPress={handleSave}
+                  disabled={!canSave}
+                  className="items-center justify-center rounded-xl bg-orange-500"
+                  style={{ height: 48, opacity: canSave ? 1 : 0.5 }}
+                >
+                  <Text className="text-[15px] font-semibold text-white">
+                    {isSaving ? "保存中..." : "保存"}
+                  </Text>
+                </TouchableOpacity>
               </View>
             </Animated.View>
           </Pressable>
         </KeyboardAvoidingView>
       </View>
 
-      {/* 图标选择器：在 Modal 内部渲染，才能正确叠加在抽屉上方 */}
+      {/* 图标选择器：在 Modal 外层渲染，叠加在抽屉上方 */}
       <IconPickerModal
-        visible={iconPickerTarget !== null}
-        selectedIcon={
-          iconPickerTarget === "lv1"
-            ? lv1Icon
-            : (subItems.find((s) => s.key === iconPickerTarget)?.icon ??
-              "folder")
-        }
+        visible={iconPickerVisible}
+        selectedIcon={icon}
         onConfirm={(iconName) => {
-          if (iconPickerTarget === "lv1") {
-            setLv1Icon(iconName);
-          } else if (iconPickerTarget) {
-            updateSubIcon(iconPickerTarget, iconName);
-          }
+          setIcon(iconName);
         }}
-        onClose={() => setIconPickerTarget(null)}
+        onClose={() => setIconPickerVisible(false)}
       />
     </Modal>
   );
