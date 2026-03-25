@@ -8,10 +8,15 @@
     "ios": "expo run:ios",
     "ts:check": "tsc --noEmit",
     "db:generate": "drizzle-kit generate",
-    "db:push": "drizzle-kit push"
+    "db:push": "drizzle-kit push",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write \"**/*.{ts,tsx,js,json,css}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,json,css}\""
   },
   "dependencies": {
     "@shopify/flash-list": "1.7.3",
+    "await-to-js": "^3.0.0",
     "clsx": "^1.2.1",
     "dayjs": "^1.11.13",
     "drizzle-orm": "^0.38.3",
@@ -44,6 +49,11 @@
     "@types/papaparse": "^5.3.14",
     "@types/react": "~18.3.0",
     "drizzle-kit": "^0.30.0",
+    "eslint": "^9.39.4",
+    "eslint-config-expo": "^55.0.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.5",
+    "prettier": "^3.8.1",
     "typescript": "~5.3.0"
   }
 }
