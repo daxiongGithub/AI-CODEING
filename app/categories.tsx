@@ -5,11 +5,11 @@ import to from "await-to-js";
 import { useCategoryStore } from "@/store/categoryStore";
 import { isCategoryInUse } from "@/db/queries";
 import { SegmentedControl } from "@/components/SegmentedControl";
-import { AddCategoryDrawer } from "@/components/AddCategoryDrawer";
+import { AddCategoryDrawer } from "@/components/page-categories/AddCategoryDrawer";
 import { Navbar } from "@/components/Navbar";
-import { CategoryL1Item } from "@/app/categories/components/CategoryL1Item";
-import { CategoryL2Item } from "@/app/categories/components/CategoryL2Item";
-import { CategoryPanelHeader } from "@/app/categories/components/CategoryPanelHeader";
+import { CategoryL1Item } from "@/components/page-categories/CategoryL1Item";
+import { CategoryL2Item } from "@/components/page-categories/CategoryL2Item";
+import { CategoryPanelHeader } from "@/components/page-categories/CategoryPanelHeader";
 import type { CategoryWithSubs, CategoryType } from "@/types";
 
 /** 分类管理页，支持新增一/二级分类及启用/停用操作 */

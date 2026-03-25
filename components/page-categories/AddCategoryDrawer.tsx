@@ -1,3 +1,4 @@
+import React, { useState, useRef, useEffect } from "react";
 import {
   Modal,
   View,
@@ -10,21 +11,26 @@ import {
   Alert,
   Animated,
 } from "react-native";
-import { useState, useRef, useEffect } from "react";
-import { X, Folder } from "lucide-react-native";
+// third-party
+import to from "await-to-js";
 import * as Crypto from "expo-crypto";
+import { X, Folder } from "lucide-react-native";
+// store
 import { useCategoryStore } from "@/store/categoryStore";
-import type { CategoryType, CategoryWithSubs } from "@/types";
-import { SegmentedControl } from "./SegmentedControl";
-import { IconPickerModal } from "./IconPickerModal";
+// components
+import { SegmentedControl } from "@/components/SegmentedControl";
+import { IconPickerModal } from "@/components/IconPickerModal";
 import { CategoryIcon } from "./CategoryIcon";
-import { ICON_MAP } from "@/constants/icons";
+// constants
+import { ICON_MAP, ICON_LABELS } from "@/constants/icons";
 import {
   BRAND_COLOR,
   PRIMARY_BG_COLOR,
   TEXT_SECONDARY_COLOR,
   BORDER_COLOR,
 } from "@/constants/theme";
+// types
+import type { CategoryType, CategoryWithSubs } from "@/types";
 
 /** 12 种颜色 token 循环分配 */
 const COLOR_TOKENS = [
@@ -58,14 +64,15 @@ interface AddCategoryDrawerProps {
  * AddCategoryDrawer — 容器组件（使用 categoryStore）
  * 底部滑出抽屉，双模式：add_l1 新增一级分类 / add_l2 添加二级分类。
  */
-export function AddCategoryDrawer({
-  visible,
-  onClose,
-  mode,
-  initialType = "expense",
-  parentCategory,
-  onSaved,
-}: AddCategoryDrawerProps) {
+export function AddCategoryDrawer(props: AddCategoryDrawerProps) {
+  const {
+    visible,
+    onClose,
+    mode,
+    initialType = "expense",
+    parentCategory,
+    onSaved,
+  } = props;
   const {
     addCategory,
     addSubCategory,
@@ -102,6 +109,7 @@ export function AddCategoryDrawer({
     }
   }, [visible, initialType]);
 
+  /** 重置表单到初始状态 */
   function resetForm() {
     setName("");
     setIcon("folder");
@@ -109,6 +117,7 @@ export function AddCategoryDrawer({
     clearError();
   }
 
+  /** 触发关闭动画，动画结束后重置表单并回调 onClose */
   function handleClose() {
     Animated.timing(slideAnim, {
       toValue: CARD_HEIGHT,
@@ -120,6 +129,7 @@ export function AddCategoryDrawer({
     });
   }
 
+  /** 校验输入并保存分类，支持 add_l1 / add_l2 双模式 */
   async function handleSave() {
     const trimmedName = name.trim();
     if (!trimmedName) {
@@ -143,8 +153,8 @@ export function AddCategoryDrawer({
       const colors = COLOR_TOKENS[colorIdx] ?? COLOR_TOKENS[0]!;
       const now = new Date().toISOString();
       setIsSaving(true);
-      try {
-        await addCategory({
+      const [err] = await to(
+        addCategory({
           id: Crypto.randomUUID(),
           type: currentType,
           name: trimmedName,
@@ -156,17 +166,17 @@ export function AddCategoryDrawer({
           isPreset: false,
           createdAt: now,
           updatedAt: now,
-        });
-        resetForm();
-        onSaved?.();
-        onClose();
-      } catch {
+        }),
+      );
+      setIsSaving(false);
+      if (err) {
         Alert.alert("保存失败", "请稍后重试");
-      } finally {
-        setIsSaving(false);
+        return;
       }
+      resetForm();
+      onSaved?.();
+      onClose();
     } else {
-      // add_l2 mode
       if (!parentCategory) {
         Alert.alert("错误", "未选择一级分类");
         return;
@@ -179,22 +189,23 @@ export function AddCategoryDrawer({
         return;
       }
       setIsSaving(true);
-      try {
-        await addSubCategory(parentCategory.id, {
+      const [err] = await to(
+        addSubCategory(parentCategory.id, {
           id: Crypto.randomUUID(),
           name: trimmedName,
           icon,
           sortOrder: parentCategory.subCategories.length + 1,
           enabled: true,
-        });
-        resetForm();
-        onSaved?.();
-        onClose();
-      } catch {
+        }),
+      );
+      setIsSaving(false);
+      if (err) {
         Alert.alert("保存失败", "请稍后重试");
-      } finally {
-        setIsSaving(false);
+        return;
       }
+      resetForm();
+      onSaved?.();
+      onClose();
     }
   }
 
@@ -250,7 +261,7 @@ export function AddCategoryDrawer({
                   onPress={handleClose}
                   className="h-7 w-7 items-center justify-center rounded-full bg-gray-100"
                 >
-                  <X size={14} color="#71717a" />
+                  <X size={14} color={TEXT_SECONDARY_COLOR} />
                 </TouchableOpacity>
               </View>
 
@@ -331,9 +342,14 @@ export function AddCategoryDrawer({
                   >
                     <IconComponent size={24} color={BRAND_COLOR} />
                   </TouchableOpacity>
-                  <Text style={{ fontSize: 13, color: TEXT_SECONDARY_COLOR }}>
-                    点击选择图标
-                  </Text>
+                  <View>
+                    <Text style={{ fontSize: 13, color: TEXT_SECONDARY_COLOR }}>
+                      点击选择图标
+                    </Text>
+                    <Text style={{ fontSize: 12, color: TEXT_SECONDARY_COLOR, marginTop: 2 }}>
+                      {ICON_LABELS[icon] ?? icon}
+                    </Text>
+                  </View>
                 </View>
 
                 {/* Name Input */}
@@ -378,9 +394,7 @@ export function AddCategoryDrawer({
       <IconPickerModal
         visible={iconPickerVisible}
         selectedIcon={icon}
-        onConfirm={(iconName) => {
-          setIcon(iconName);
-        }}
+        onConfirm={setIcon}
         onClose={() => setIconPickerVisible(false)}
       />
     </Modal>

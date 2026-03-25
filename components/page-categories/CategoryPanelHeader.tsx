@@ -17,13 +17,13 @@ export function CategoryPanelHeader(props: CategoryPanelHeaderProps) {
         activeOpacity={disabled ? 1 : 0.7}
         onPress={disabled ? undefined : onAdd}
         className={clsx(
-          "h-5 items-center justify-center rounded-full border px-2",
+          "flex-shrink-0 w-5 h-5 rounded-full border flex items-center justify-center",
           disabled ? "border-zinc-300" : "border-brand",
         )}
       >
         <Text
           className={clsx(
-            "text-[13px] font-semibold",
+            "text-[13px] font-semibold leading-none",
             disabled ? "text-zinc-300" : "text-brand",
           )}
         >

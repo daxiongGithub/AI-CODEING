@@ -14,7 +14,7 @@ interface SegmentedControlProps {
 
 /**
  * SegmentedControl — 展示组件
- * iOS 风格分段选择器，设计稿规格：高度 34，padding 3，激活项白色阴影。
+ * iOS 风格分段选择器，设计稿规格：高度 36，padding 3，激活项白色阴影。
  */
 export function SegmentedControl(props: SegmentedControlProps) {
   const { options, selectedIndex, onChange, width = 220 } = props;

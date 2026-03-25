@@ -1,5 +1,5 @@
 import { View, Text } from "react-native";
-import { CategoryIcon } from "@/components/CategoryIcon";
+import { CategoryIcon } from "@/components/page-categories/CategoryIcon";
 import type { SubCategory } from "@/types";
 
 /** 二级分类列表项，已停用时显示角标 */

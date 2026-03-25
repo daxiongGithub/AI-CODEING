@@ -9,21 +9,18 @@ import {
   KeyboardAvoidingView,
   Platform,
   Animated,
-  Dimensions,
 } from "react-native";
 import { FlashList } from "@shopify/flash-list";
-import { useState, useMemo, useRef, useEffect } from "react";
-import { X, Search, Folder } from "lucide-react-native";
-import { ICON_MAP, ICON_GROUPS, ALL_ICON_NAMES } from "@/constants/icons";
-import {
-  BG_TOKEN_MAP,
-  TEXT_TOKEN_MAP,
-  BRAND_COLOR,
-  PRIMARY_BG_COLOR,
-  TEXT_SECONDARY_COLOR,
-} from "@/constants/theme";
+import { X, Search } from "lucide-react-native";
+import { ALL_ICON_NAMES, ICON_LABELS } from "@/constants/icons";
+import { TEXT_SECONDARY_COLOR } from "@/constants/theme";
+import { IconCell } from "./components/IconCell";
+import { useIconPicker, CARD_HEIGHT, FILTER_GROUPS } from "./hooks/useIconPicker";
 
-interface IconPickerModalProps {
+/** 图标网格列数 */
+const COLUMNS = 4;
+
+export interface IconPickerModalProps {
   visible: boolean;
   /** 当前已选图标名 */
   selectedIcon: string;
@@ -32,125 +29,28 @@ interface IconPickerModalProps {
   onClose: () => void;
 }
 
-const SCREEN_HEIGHT = Dimensions.get("window").height;
-const CARD_HEIGHT = SCREEN_HEIGHT * 0.8;
-
-const COLUMNS = 4;
-
-// 「全部」组包含所有图标
-const ALL_GROUP = { label: "全部", icons: ALL_ICON_NAMES };
-const FILTER_GROUPS = [ALL_GROUP, ...ICON_GROUPS];
-
-// 图标展示用的颜色循环（从 constants/theme 取值，禁止硬编码十六进制）
-const COLOR_PAIRS = [
-  { bg: PRIMARY_BG_COLOR, icon: BRAND_COLOR },
-  { bg: BG_TOKEN_MAP["blue-100"]!, icon: TEXT_TOKEN_MAP["text-blue-500"]! },
-  {
-    bg: BG_TOKEN_MAP["emerald-100"]!,
-    icon: TEXT_TOKEN_MAP["text-emerald-500"]!,
-  },
-  { bg: BG_TOKEN_MAP["purple-100"]!, icon: TEXT_TOKEN_MAP["text-purple-500"]! },
-  { bg: BG_TOKEN_MAP["amber-100"]!, icon: TEXT_TOKEN_MAP["text-amber-600"]! },
-  { bg: BG_TOKEN_MAP["red-100"]!, icon: TEXT_TOKEN_MAP["text-red-500"]! },
-  { bg: BG_TOKEN_MAP["cyan-100"]!, icon: TEXT_TOKEN_MAP["text-cyan-500"]! },
-  { bg: BG_TOKEN_MAP["slate-100"]!, icon: TEXT_TOKEN_MAP["text-slate-500"]! },
-];
-
-function getColorPair(iconName: string) {
-  const idx = iconName.charCodeAt(0) % COLOR_PAIRS.length;
-  return COLOR_PAIRS[idx] ?? COLOR_PAIRS[0]!;
-}
-
-interface IconCellProps {
-  iconName: string;
-  isSelected: boolean;
-  onPress: () => void;
-}
-
-function IconCell({ iconName, isSelected, onPress }: IconCellProps) {
-  const IconComponent = ICON_MAP[iconName] ?? Folder;
-  const { bg, icon } = getColorPair(iconName);
-
-  return (
-    <TouchableOpacity
-      activeOpacity={0.7}
-      onPress={onPress}
-      className="flex-1 items-center py-2"
-    >
-      <View
-        style={{
-          width: 48,
-          height: 48,
-          borderRadius: 24,
-          backgroundColor: bg,
-          justifyContent: "center",
-          alignItems: "center",
-          ...(isSelected && { borderWidth: 1, borderColor: BRAND_COLOR }),
-        }}
-      >
-        <IconComponent size={24} color={isSelected ? BRAND_COLOR : icon} />
-      </View>
-      <Text
-        className={`mt-1 text-[10px] ${isSelected ? "font-semibold text-orange-500" : "text-zinc-500"}`}
-        numberOfLines={1}
-      >
-        {iconName}
-      </Text>
-    </TouchableOpacity>
-  );
-}
-
 /**
  * IconPickerModal — 底部弹出图标选择器
  * 包含搜索、分类筛选、4 列图标网格、预览 + 确认按钮。
  */
-export function IconPickerModal({
-  visible,
-  selectedIcon,
-  onConfirm,
-  onClose,
-}: IconPickerModalProps) {
-  const [search, setSearch] = useState("");
-  const [filterGroup, setFilterGroup] = useState("全部");
-  const [localSelected, setLocalSelected] = useState(selectedIcon);
+export function IconPickerModal(props: IconPickerModalProps) {
+  const { visible, selectedIcon, onConfirm, onClose } = props;
 
-  // 卡片滑入动画
-  const slideAnim = useRef(new Animated.Value(CARD_HEIGHT)).current;
-
-  useEffect(() => {
-    if (visible) {
-      slideAnim.setValue(CARD_HEIGHT);
-      Animated.timing(slideAnim, {
-        toValue: 0,
-        duration: 380,
-        useNativeDriver: true,
-      }).start();
-    }
-  }, [visible, slideAnim]);
-
-  function handleClose() {
-    Animated.timing(slideAnim, {
-      toValue: CARD_HEIGHT,
-      duration: 280,
-      useNativeDriver: true,
-    }).start(() => onClose());
-  }
-
-  // 同步外部 selectedIcon
-  const handleOpen = () => setLocalSelected(selectedIcon);
-
-  const filteredIcons = useMemo(() => {
-    const group = FILTER_GROUPS.find((g) => g.label === filterGroup) ?? ALL_GROUP;
-    const base = group.icons;
-    if (!search.trim()) return base;
-    const q = search.toLowerCase().trim();
-    return base.filter((name) => name.includes(q));
-  }, [search, filterGroup]);
-
-  // 每行 COLUMNS 个，用 FlatList numColumns
-  const SelectedIcon = ICON_MAP[localSelected] ?? Folder;
-  const selectedBg = BG_TOKEN_MAP["orange-100"] ?? "#fff7ed";
-  const selectedColor = TEXT_TOKEN_MAP["text-orange-500"] ?? "#f97316";
+  const {
+    search,
+    setSearch,
+    filterGroup,
+    setFilterGroup,
+    localSelected,
+    setLocalSelected,
+    slideAnim,
+    filteredIcons,
+    handleClose,
+    handleOpen,
+    SelectedIcon,
+    selectedBg,
+    selectedColor,
+  } = useIconPicker({ visible, selectedIcon, onClose });
 
   return (
     <Modal
@@ -163,6 +63,7 @@ export function IconPickerModal({
       <View style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.4)" }}>
         {/* 遮罩层：绝对定位，不参与滚动布局 */}
         <Pressable className="absolute inset-0" onPress={handleClose} />
+
         {/* 内容区：独立于遮罩，居底 */}
         <KeyboardAvoidingView
           style={{ flex: 1, justifyContent: "flex-end" }}
@@ -219,11 +120,7 @@ export function IconPickerModal({
                 horizontal
                 showsHorizontalScrollIndicator={false}
                 style={{ height: 48, flexGrow: 0, flexShrink: 0 }}
-                contentContainerStyle={{
-                  paddingHorizontal: 16,
-                  paddingVertical: 10,
-                  gap: 8,
-                }}
+                contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 10, gap: 8 }}
                 renderItem={({ item }) => {
                   const isActive = filterGroup === item.label;
                   return (
@@ -244,25 +141,23 @@ export function IconPickerModal({
               />
 
               {/* ── 图标网格（FlashList，大列表必须用） ── */}
-              <FlashList
-                data={filteredIcons}
-                keyExtractor={(item) => item}
-                numColumns={COLUMNS}
-                estimatedItemSize={80}
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={{
-                  paddingHorizontal: 8,
-                  paddingBottom: 8,
-                }}
-                renderItem={({ item }) => (
-                  <IconCell
-                    iconName={item}
-                    isSelected={localSelected === item}
-                    onPress={() => setLocalSelected(item)}
-                  />
-                )}
-                style={{ flex: 1 }}
-              />
+              <View className="flex-1">
+                <FlashList
+                  data={filteredIcons}
+                  keyExtractor={(item) => item}
+                  numColumns={COLUMNS}
+                  estimatedItemSize={80}
+                  showsVerticalScrollIndicator={false}
+                  contentContainerStyle={{ paddingHorizontal: 8, paddingBottom: 8 }}
+                  renderItem={({ item }) => (
+                    <IconCell
+                      iconName={item}
+                      // isSelected={localSelected === item}
+                      onPress={() => setLocalSelected(item)}
+                    />
+                  )}
+                />
+              </View>
 
               {/* ── 底部预览 + 确认 ── */}
               <View
@@ -286,7 +181,7 @@ export function IconPickerModal({
                   <View>
                     <Text className="text-[11px] text-zinc-400">已选图标</Text>
                     <Text className="text-[13px] font-semibold text-zinc-900">
-                      {localSelected || "folder"}
+                      {ICON_LABELS[localSelected] ?? (localSelected || "folder")}
                     </Text>
                   </View>
                 </View>

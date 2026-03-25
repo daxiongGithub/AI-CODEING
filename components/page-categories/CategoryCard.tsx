@@ -1,6 +1,6 @@
 import { View, Text, TouchableOpacity } from "react-native";
-import type { CategoryWithSubs } from "@/types";
 import { CategoryIcon } from "./CategoryIcon";
+import type { CategoryWithSubs } from "@/types";
 
 interface CategoryCardProps {
   category: CategoryWithSubs;
@@ -24,7 +24,7 @@ export function CategoryCard({ category, onToggleEnabled }: CategoryCardProps) {
         enabled ? "bg-white" : "bg-zinc-50"
       }`}
       style={{
-        shadowColor: "#000",
+        shadowColor: "rgba(0,0,0,0.04)",
         shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.04,
         shadowRadius: 2,

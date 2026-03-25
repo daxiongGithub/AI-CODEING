@@ -1,6 +1,6 @@
 import { TouchableOpacity, View, Text } from "react-native";
 import clsx from "clsx";
-import { CategoryIcon } from "@/components/CategoryIcon";
+import { CategoryIcon } from "@/components/page-categories/CategoryIcon";
 import type { CategoryWithSubs } from "@/types";
 
 /** 一级分类列表项，选中时高亮左侧边框与背景 */
