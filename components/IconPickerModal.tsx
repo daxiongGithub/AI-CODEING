@@ -13,7 +13,7 @@ import {
 } from "react-native";
 import { FlashList } from "@shopify/flash-list";
 import { useState, useMemo, useRef, useEffect } from "react";
-import { X, Search } from "lucide-react-native";
+import { X, Search, Folder } from "lucide-react-native";
 import { ICON_MAP, ICON_GROUPS, ALL_ICON_NAMES } from "@/constants/icons";
 import {
   BG_TOKEN_MAP,
@@ -22,7 +22,6 @@ import {
   PRIMARY_BG_COLOR,
   TEXT_SECONDARY_COLOR,
 } from "@/constants/theme";
-import { Folder } from "lucide-react-native";
 
 interface IconPickerModalProps {
   visible: boolean;
@@ -141,8 +140,7 @@ export function IconPickerModal({
   const handleOpen = () => setLocalSelected(selectedIcon);
 
   const filteredIcons = useMemo(() => {
-    const group =
-      FILTER_GROUPS.find((g) => g.label === filterGroup) ?? ALL_GROUP;
+    const group = FILTER_GROUPS.find((g) => g.label === filterGroup) ?? ALL_GROUP;
     const base = group.icons;
     if (!search.trim()) return base;
     const q = search.toLowerCase().trim();
@@ -185,9 +183,7 @@ export function IconPickerModal({
                 className="flex-row items-center justify-between border-b border-zinc-200 px-4"
                 style={{ height: 56 }}
               >
-                <Text className="text-[17px] font-semibold text-zinc-900">
-                  选择图标
-                </Text>
+                <Text className="text-[17px] font-semibold text-zinc-900">选择图标</Text>
                 <TouchableOpacity
                   activeOpacity={0.7}
                   onPress={handleClose}
@@ -305,9 +301,7 @@ export function IconPickerModal({
                   className="items-center justify-center rounded-[10px] bg-orange-500"
                   style={{ width: 120, height: 44 }}
                 >
-                  <Text className="text-[15px] font-semibold text-white">
-                    确认选择
-                  </Text>
+                  <Text className="text-[15px] font-semibold text-white">确认选择</Text>
                 </TouchableOpacity>
               </View>
             </Animated.View>

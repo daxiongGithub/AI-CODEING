@@ -13,10 +13,7 @@ export function CategoryL2Item({ sub }: { sub: SubCategory }) {
         size={14}
         circleSize={28}
       />
-      <Text
-        className="ml-2 flex-1 text-[13px] text-text-main"
-        numberOfLines={1}
-      >
+      <Text className="ml-2 flex-1 text-[13px] text-text-main" numberOfLines={1}>
         {sub.name}
       </Text>
       {!sub.enabled && (

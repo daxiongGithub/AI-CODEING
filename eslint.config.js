@@ -1,15 +1,14 @@
 const { defineConfig } = require("eslint/config");
 const expoConfig = require("eslint-config-expo/flat");
-const prettierPlugin = require("eslint-plugin-prettier");
 const prettierConfig = require("eslint-config-prettier");
 
 module.exports = defineConfig([
   ...expoConfig,
   prettierConfig,
   {
-    plugins: { prettier: prettierPlugin },
     rules: {
-      "prettier/prettier": "warn",
+      // clsx v1 只有默认导出，ESLint 误判为具名导出同名冲突
+      "import/no-named-as-default": "off",
     },
   },
   {

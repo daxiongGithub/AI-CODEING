@@ -1,15 +1,15 @@
-import { create } from 'zustand';
-import type { CategoryWithSubs, NewCategory, NewSubCategory } from '@/types';
+import { create } from "zustand";
+import type { CategoryWithSubs, NewCategory, NewSubCategory } from "@/types";
 import {
   getAllCategories,
   getAllCategoriesAll,
   insertCategory,
   insertSubCategory,
   toggleCategoryEnabled,
-} from '@/db/queries';
+} from "@/db/queries";
 
 /** 创建子分类所需的最简数据（不含 parentCategoryId） */
-export type NewSubCategoryInput = Omit<NewSubCategory, 'parentCategoryId'>;
+export type NewSubCategoryInput = Omit<NewSubCategory, "parentCategoryId">;
 
 interface CategoryState {
   /** 仅启用的分类，供记账页使用 */
@@ -46,12 +46,12 @@ export const useCategoryStore = create<CategoryState>((set) => ({
     try {
       set({ isLoading: true });
       const [expense, income] = await Promise.all([
-        getAllCategories('expense'),
-        getAllCategories('income'),
+        getAllCategories("expense"),
+        getAllCategories("income"),
       ]);
       set({ expenseCategories: expense, incomeCategories: income, isLoading: false });
     } catch {
-      set({ error: '加载分类失败', isLoading: false });
+      set({ error: "加载分类失败", isLoading: false });
     }
   },
 
@@ -59,8 +59,8 @@ export const useCategoryStore = create<CategoryState>((set) => ({
     try {
       set({ isLoading: true });
       const [expense, income] = await Promise.all([
-        getAllCategoriesAll('expense'),
-        getAllCategoriesAll('income'),
+        getAllCategoriesAll("expense"),
+        getAllCategoriesAll("income"),
       ]);
       set({
         allExpenseCategories: expense,
@@ -68,7 +68,7 @@ export const useCategoryStore = create<CategoryState>((set) => ({
         isLoading: false,
       });
     } catch {
-      set({ error: '加载分类失败', isLoading: false });
+      set({ error: "加载分类失败", isLoading: false });
     }
   },
 
@@ -76,10 +76,10 @@ export const useCategoryStore = create<CategoryState>((set) => ({
     try {
       await insertCategory(data);
       const [expense, income, allExp, allInc] = await Promise.all([
-        getAllCategories('expense'),
-        getAllCategories('income'),
-        getAllCategoriesAll('expense'),
-        getAllCategoriesAll('income'),
+        getAllCategories("expense"),
+        getAllCategories("income"),
+        getAllCategoriesAll("expense"),
+        getAllCategoriesAll("income"),
       ]);
       set({
         expenseCategories: expense,
@@ -88,8 +88,8 @@ export const useCategoryStore = create<CategoryState>((set) => ({
         allIncomeCategories: allInc,
       });
     } catch {
-      set({ error: '新增分类失败' });
-      throw new Error('addCategory failed');
+      set({ error: "新增分类失败" });
+      throw new Error("addCategory failed");
     }
   },
 
@@ -107,10 +107,10 @@ export const useCategoryStore = create<CategoryState>((set) => ({
         );
       }
       const [expense, income, allExp, allInc] = await Promise.all([
-        getAllCategories('expense'),
-        getAllCategories('income'),
-        getAllCategoriesAll('expense'),
-        getAllCategoriesAll('income'),
+        getAllCategories("expense"),
+        getAllCategories("income"),
+        getAllCategoriesAll("expense"),
+        getAllCategoriesAll("income"),
       ]);
       set({
         expenseCategories: expense,
@@ -119,8 +119,8 @@ export const useCategoryStore = create<CategoryState>((set) => ({
         allIncomeCategories: allInc,
       });
     } catch {
-      set({ error: '新增分类失败' });
-      throw new Error('addCategoryWithSubs failed');
+      set({ error: "新增分类失败" });
+      throw new Error("addCategoryWithSubs failed");
     }
   },
 
@@ -128,10 +128,10 @@ export const useCategoryStore = create<CategoryState>((set) => ({
     try {
       await insertSubCategory({ ...subData, parentCategoryId: parentId });
       const [expense, income, allExp, allInc] = await Promise.all([
-        getAllCategories('expense'),
-        getAllCategories('income'),
-        getAllCategoriesAll('expense'),
-        getAllCategoriesAll('income'),
+        getAllCategories("expense"),
+        getAllCategories("income"),
+        getAllCategoriesAll("expense"),
+        getAllCategoriesAll("income"),
       ]);
       set({
         expenseCategories: expense,
@@ -140,8 +140,8 @@ export const useCategoryStore = create<CategoryState>((set) => ({
         allIncomeCategories: allInc,
       });
     } catch {
-      set({ error: '新增二级分类失败' });
-      throw new Error('addSubCategory failed');
+      set({ error: "新增二级分类失败" });
+      throw new Error("addSubCategory failed");
     }
   },
 
@@ -149,10 +149,10 @@ export const useCategoryStore = create<CategoryState>((set) => ({
     try {
       await toggleCategoryEnabled(id, enabled);
       const [expense, income, allExp, allInc] = await Promise.all([
-        getAllCategories('expense'),
-        getAllCategories('income'),
-        getAllCategoriesAll('expense'),
-        getAllCategoriesAll('income'),
+        getAllCategories("expense"),
+        getAllCategories("income"),
+        getAllCategoriesAll("expense"),
+        getAllCategoriesAll("income"),
       ]);
       set({
         expenseCategories: expense,
@@ -161,7 +161,7 @@ export const useCategoryStore = create<CategoryState>((set) => ({
         allIncomeCategories: allInc,
       });
     } catch {
-      set({ error: '操作失败' });
+      set({ error: "操作失败" });
     }
   },
 

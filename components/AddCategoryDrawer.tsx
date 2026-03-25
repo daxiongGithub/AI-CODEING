@@ -134,9 +134,7 @@ export function AddCategoryDrawer({
     if (mode === "add_l1") {
       const existingList =
         currentType === "expense" ? allExpenseCategories : allIncomeCategories;
-      const isDuplicate = existingList.some(
-        (c) => c.name.trim() === trimmedName,
-      );
+      const isDuplicate = existingList.some((c) => c.name.trim() === trimmedName);
       if (isDuplicate) {
         Alert.alert("提示", "该类型下已存在同名分类，请修改名称");
         return;
@@ -305,9 +303,7 @@ export function AddCategoryDrawer({
                       paddingVertical: 2,
                     }}
                   >
-                    <Text
-                      style={{ fontSize: 10, fontWeight: "600", color: "#fff" }}
-                    >
+                    <Text style={{ fontSize: 10, fontWeight: "600", color: "#fff" }}>
                       一级
                     </Text>
                   </View>

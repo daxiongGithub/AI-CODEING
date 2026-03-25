@@ -13,9 +13,7 @@ export function CategoryPanelHeader({
 }) {
   return (
     <View className="h-[40px] flex-row items-center justify-between border-b border-border px-3">
-      <Text className="text-[12px] font-semibold text-text-secondary">
-        {title}
-      </Text>
+      <Text className="text-[12px] font-semibold text-text-secondary">{title}</Text>
       <TouchableOpacity
         activeOpacity={disabled ? 1 : 0.7}
         onPress={disabled ? undefined : onAdd}

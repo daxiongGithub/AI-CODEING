@@ -26,10 +26,7 @@ export function SegmentedControl(props: SegmentedControlProps) {
     elevation: 2,
   };
   return (
-    <View
-      className="h-9 flex-row rounded-[10px] bg-gray-50 p-[3px]"
-      style={{ width }}
-    >
+    <View className="h-9 flex-row rounded-[10px] bg-gray-50 p-[3px]" style={{ width }}>
       {options.map((label, index) => {
         const isActive = index === selectedIndex;
         return (

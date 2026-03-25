@@ -1,10 +1,8 @@
 /**
  * 金额格式化：¥1,234.56
  */
-export function formatCurrency(amount: number, symbol = '¥'): string {
-  const formatted = amount
-    .toFixed(2)
-    .replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+export function formatCurrency(amount: number, symbol = "¥"): string {
+  const formatted = amount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   return `${symbol}${formatted}`;
 }
 

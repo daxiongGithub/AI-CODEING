@@ -1,12 +1,12 @@
-import { create } from 'zustand';
-import dayjs from 'dayjs';
-import type { Transaction, NewTransaction } from '@/types';
+import { create } from "zustand";
+import dayjs from "dayjs";
+import type { Transaction, NewTransaction } from "@/types";
 import {
   insertTransaction,
   getTransactionsByDate,
   getSummaryByDateRange,
   deleteTransaction,
-} from '@/db/queries';
+} from "@/db/queries";
 
 interface MonthlySummary {
   totalIncome: number;
@@ -39,7 +39,7 @@ export const useTransactionStore = create<TransactionState>((set) => ({
       const data = await getTransactionsByDate(date);
       set({ transactions: data, isLoading: false });
     } catch {
-      set({ error: '加载账目失败', isLoading: false });
+      set({ error: "加载账目失败", isLoading: false });
     }
   },
 
@@ -48,17 +48,14 @@ export const useTransactionStore = create<TransactionState>((set) => ({
       const start = dayjs()
         .year(year)
         .month(month - 1)
-        .startOf('month')
-        .format('YYYY-MM-DD');
+        .startOf("month")
+        .format("YYYY-MM-DD");
       const end = dayjs()
         .year(year)
         .month(month - 1)
-        .endOf('month')
-        .format('YYYY-MM-DD');
-      const { totalIncome, totalExpense } = await getSummaryByDateRange(
-        start,
-        end,
-      );
+        .endOf("month")
+        .format("YYYY-MM-DD");
+      const { totalIncome, totalExpense } = await getSummaryByDateRange(start, end);
       set({
         monthlySummary: {
           totalIncome,
@@ -67,7 +64,7 @@ export const useTransactionStore = create<TransactionState>((set) => ({
         },
       });
     } catch {
-      set({ error: '加载统计失败' });
+      set({ error: "加载统计失败" });
     }
   },
 
@@ -77,8 +74,8 @@ export const useTransactionStore = create<TransactionState>((set) => ({
       await insertTransaction(data);
       set({ isLoading: false });
     } catch {
-      set({ error: '保存失败，请重试', isLoading: false });
-      throw new Error('addTransaction failed');
+      set({ error: "保存失败，请重试", isLoading: false });
+      throw new Error("addTransaction failed");
     }
   },
 
@@ -89,7 +86,7 @@ export const useTransactionStore = create<TransactionState>((set) => ({
         transactions: state.transactions.filter((t) => t.id !== id),
       }));
     } catch {
-      set({ error: '删除失败，请重试' });
+      set({ error: "删除失败，请重试" });
     }
   },
 

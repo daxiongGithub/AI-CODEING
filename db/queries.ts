@@ -13,18 +13,14 @@ import type {
 
 // ─── 账目操作 ───
 
-export async function insertTransaction(
-  data: NewTransaction,
-): Promise<Transaction> {
+export async function insertTransaction(data: NewTransaction): Promise<Transaction> {
   const result = await db.insert(transactions).values(data).returning();
   const row = result[0];
   if (!row) throw new Error("Insert transaction failed");
   return row;
 }
 
-export async function getTransactionsByDate(
-  date: string,
-): Promise<Transaction[]> {
+export async function getTransactionsByDate(date: string): Promise<Transaction[]> {
   return db
     .select()
     .from(transactions)
@@ -85,7 +81,7 @@ export async function getCategoryBreakdown(
   type: "income" | "expense",
   start: string,
   end: string,
-): Promise<Array<{ categoryId: string; categoryName: string; total: number }>> {
+): Promise<{ categoryId: string; categoryName: string; total: number }[]> {
   const rows = await db
     .select({
       categoryId: transactions.categoryId,
@@ -94,9 +90,7 @@ export async function getCategoryBreakdown(
     })
     .from(transactions)
     .innerJoin(categories, eq(transactions.categoryId, categories.id))
-    .where(
-      and(eq(transactions.type, type), between(transactions.date, start, end)),
-    )
+    .where(and(eq(transactions.type, type), between(transactions.date, start, end)))
     .groupBy(transactions.categoryId, categories.name);
 
   return rows.map((r) => ({
@@ -140,9 +134,7 @@ export async function insertCategory(data: NewCategory): Promise<Category> {
   return row;
 }
 
-export async function insertSubCategory(
-  data: NewSubCategory,
-): Promise<SubCategory> {
+export async function insertSubCategory(data: NewSubCategory): Promise<SubCategory> {
   const result = await db.insert(subCategories).values(data).returning();
   const row = result[0];
   if (!row) throw new Error("Insert subCategory failed");
@@ -159,10 +151,7 @@ export async function updateCategory(
     .where(eq(categories.id, id));
 }
 
-export async function toggleCategoryEnabled(
-  id: string,
-  enabled: boolean,
-): Promise<void> {
+export async function toggleCategoryEnabled(id: string, enabled: boolean): Promise<void> {
   await db
     .update(categories)
     .set({ enabled, updatedAt: new Date().toISOString() })
@@ -203,10 +192,7 @@ export async function getAllCategoriesAll(
     .where(type ? eq(categories.type, type) : undefined)
     .orderBy(categories.sortOrder);
 
-  const subs = await db
-    .select()
-    .from(subCategories)
-    .orderBy(subCategories.sortOrder);
+  const subs = await db.select().from(subCategories).orderBy(subCategories.sortOrder);
 
   return cats.map((cat) => ({
     ...cat,

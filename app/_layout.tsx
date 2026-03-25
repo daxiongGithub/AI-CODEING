@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
-import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { StatusBar } from 'expo-status-bar';
-import { initDatabase } from '@/db/client';
-import { seedPresetCategories } from '@/db/seed';
-import '../global.css';
+import { useEffect, useState } from "react";
+import { Stack } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
+import { StatusBar } from "expo-status-bar";
+import { initDatabase } from "@/db/client";
+import { seedPresetCategories } from "@/db/seed";
+import "../global.css";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -17,7 +17,7 @@ export default function RootLayout() {
         await initDatabase();
         await seedPresetCategories();
       } catch (error) {
-        console.error('[DB] Init error:', error);
+        console.error("[DB] Init error:", error);
       } finally {
         setDbReady(true);
         await SplashScreen.hideAsync();
@@ -36,13 +36,16 @@ export default function RootLayout() {
         <Stack.Screen
           name="add"
           options={{
-            presentation: 'modal',
-            title: '记一笔',
+            presentation: "modal",
+            title: "记一笔",
             headerShadowVisible: false,
           }}
         />
-        <Stack.Screen name="scan" options={{ title: '截图记账' }} />
-        <Stack.Screen name="categories" options={{ title: '分类管理', headerShown: false }} />
+        <Stack.Screen name="scan" options={{ title: "截图记账" }} />
+        <Stack.Screen
+          name="categories"
+          options={{ title: "分类管理", headerShown: false }}
+        />
       </Stack>
     </>
   );

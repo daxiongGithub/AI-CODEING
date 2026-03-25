@@ -1,6 +1,6 @@
-import { View, Text, TouchableOpacity } from 'react-native';
-import type { CategoryWithSubs } from '@/types';
-import { CategoryIcon } from './CategoryIcon';
+import { View, Text, TouchableOpacity } from "react-native";
+import type { CategoryWithSubs } from "@/types";
+import { CategoryIcon } from "./CategoryIcon";
 
 interface CategoryCardProps {
   category: CategoryWithSubs;
@@ -16,17 +16,15 @@ export function CategoryCard({ category, onToggleEnabled }: CategoryCardProps) {
   const { enabled, subCategories } = category;
 
   const subNames =
-    subCategories.length > 0
-      ? subCategories.map((s) => s.name).join(' / ')
-      : '无子分类';
+    subCategories.length > 0 ? subCategories.map((s) => s.name).join(" / ") : "无子分类";
 
   return (
     <View
       className={`w-full rounded-xl border border-zinc-200 px-[14px] py-[14px] ${
-        enabled ? 'bg-white' : 'bg-zinc-50'
+        enabled ? "bg-white" : "bg-zinc-50"
       }`}
       style={{
-        shadowColor: '#000',
+        shadowColor: "#000",
         shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.04,
         shadowRadius: 2,
@@ -64,15 +62,15 @@ export function CategoryCard({ category, onToggleEnabled }: CategoryCardProps) {
           activeOpacity={0.7}
           onPress={() => onToggleEnabled(category.id, enabled)}
           className={`rounded-full px-2.5 py-0.5 ${
-            enabled ? 'bg-emerald-50' : 'bg-red-50'
+            enabled ? "bg-emerald-50" : "bg-red-50"
           }`}
         >
           <Text
             className={`text-[12px] font-semibold ${
-              enabled ? 'text-emerald-600' : 'text-red-500'
+              enabled ? "text-emerald-600" : "text-red-500"
             }`}
           >
-            {enabled ? '启用' : '已停用'}
+            {enabled ? "启用" : "已停用"}
           </Text>
         </TouchableOpacity>
       </View>

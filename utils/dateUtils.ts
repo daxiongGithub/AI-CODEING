@@ -1,6 +1,6 @@
-import dayjs from 'dayjs';
+import dayjs from "dayjs";
 
-/** 
+/**
  * 返回指定年月的起止日期（ISO 格式 YYYY-MM-DD）。
  * @param year - 年份（例如 2024）
  * @param month - 月份（1-12）
@@ -10,10 +10,10 @@ export function getMonthRange(
   year: number,
   month: number,
 ): { start: string; end: string } {
-  const start = dayjs(
-    `${year}-${String(month).padStart(2, '0')}-01`,
-  ).format('YYYY-MM-DD');
-  const end = dayjs(start).endOf('month').format('YYYY-MM-DD');
+  const start = dayjs(`${year}-${String(month).padStart(2, "0")}-01`).format(
+    "YYYY-MM-DD",
+  );
+  const end = dayjs(start).endOf("month").format("YYYY-MM-DD");
   return { start, end };
 }
 
@@ -22,7 +22,7 @@ export function getMonthRange(
  * 用于和存储在 DB 中的日期字段比对。
  */
 export function getTodayISO(): string {
-  return dayjs().format('YYYY-MM-DD');
+  return dayjs().format("YYYY-MM-DD");
 }
 
 /**
@@ -38,7 +38,7 @@ export function isToday(date: string): boolean {
  * @param date - ISO 日期字符串
  */
 export function isYesterday(date: string): boolean {
-  return date === dayjs().subtract(1, 'day').format('YYYY-MM-DD');
+  return date === dayjs().subtract(1, "day").format("YYYY-MM-DD");
 }
 
 /**
@@ -49,9 +49,9 @@ export function isYesterday(date: string): boolean {
  * @param date - ISO 日期字符串
  */
 export function getDateLabel(date: string): string {
-  if (isToday(date)) return '今天';
-  if (isYesterday(date)) return '昨天';
-  return dayjs(date).format('YYYY年M月D日');
+  if (isToday(date)) return "今天";
+  if (isYesterday(date)) return "昨天";
+  return dayjs(date).format("YYYY年M月D日");
 }
 
 /**

@@ -14,12 +14,8 @@ import { CategoryPanelHeader } from "@/app/categories/components/CategoryPanelHe
 
 /** 分类管理页，支持新增一/二级分类及启用/停用操作 */
 export default function CategoriesScreen() {
-  const {
-    allExpenseCategories,
-    allIncomeCategories,
-    loadAllCategories,
-    toggleEnabled,
-  } = useCategoryStore();
+  const { allExpenseCategories, allIncomeCategories, loadAllCategories, toggleEnabled } =
+    useCategoryStore();
 
   const [typeIndex, setTypeIndex] = useState(0);
   const [selectedL1Id, setSelectedL1Id] = useState<string | null>(null);
@@ -78,18 +74,14 @@ export default function CategoriesScreen() {
             ],
           );
         } else {
-          Alert.alert(
-            "停用分类",
-            "停用后该分类将不可在记账页选择。确认停用？",
-            [
-              { text: "取消", style: "cancel" },
-              {
-                text: "确认",
-                style: "destructive",
-                onPress: () => toggleEnabled(id, false),
-              },
-            ],
-          );
+          Alert.alert("停用分类", "停用后该分类将不可在记账页选择。确认停用？", [
+            { text: "取消", style: "cancel" },
+            {
+              text: "确认",
+              style: "destructive",
+              onPress: () => toggleEnabled(id, false),
+            },
+          ]);
         }
       } else {
         toggleEnabled(id, true);
@@ -147,18 +139,14 @@ export default function CategoriesScreen() {
           <ScrollView showsVerticalScrollIndicator={false}>
             {!selectedL1Id ? (
               <View className="items-center py-8">
-                <Text className="text-[13px] text-zinc-400">
-                  请先选择左侧分类
-                </Text>
+                <Text className="text-[13px] text-zinc-400">请先选择左侧分类</Text>
               </View>
             ) : l2Categories.length === 0 ? (
               <View className="items-center py-8">
                 <Text className="text-[13px] text-zinc-400">暂无二级分类</Text>
               </View>
             ) : (
-              l2Categories.map((sub) => (
-                <CategoryL2Item key={sub.id} sub={sub} />
-              ))
+              l2Categories.map((sub) => <CategoryL2Item key={sub.id} sub={sub} />)
             )}
           </ScrollView>
         </View>

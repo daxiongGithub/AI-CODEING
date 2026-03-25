@@ -33,9 +33,7 @@ export default function TabLayout() {
         name="stats"
         options={{
           title: "统计",
-          tabBarIcon: ({ color, size }) => (
-            <PieChart color={color} size={size} />
-          ),
+          tabBarIcon: ({ color, size }) => <PieChart color={color} size={size} />,
         }}
       />
       <Tabs.Screen
@@ -43,9 +41,7 @@ export default function TabLayout() {
         options={{
           title: "设置",
           headerShown: false,
-          tabBarIcon: ({ color, size }) => (
-            <Settings color={color} size={size} />
-          ),
+          tabBarIcon: ({ color, size }) => <Settings color={color} size={size} />,
         }}
       />
     </Tabs>

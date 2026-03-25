@@ -79,9 +79,7 @@ export default function SettingsScreen() {
                   >
                     <item.Icon size={18} color={item.iconColor} />
                   </View>
-                  <Text className="text-[15px] text-zinc-900">
-                    {item.label}
-                  </Text>
+                  <Text className="text-[15px] text-zinc-900">{item.label}</Text>
                 </View>
                 {/* 右侧 */}
                 <ChevronRight size={18} color={TEXT_SECONDARY_COLOR} />
@@ -95,9 +93,7 @@ export default function SettingsScreen() {
           <Text className="text-[13px] font-semibold text-zinc-400">
             口袋账本 PocketBook
           </Text>
-          <Text className="mt-1 text-[11px] text-zinc-300">
-            v0.1.0 · 本地隐私优先
-          </Text>
+          <Text className="mt-1 text-[11px] text-zinc-300">v0.1.0 · 本地隐私优先</Text>
         </View>
         <SafeAreaView edges={["bottom"]} />
       </ScrollView>
