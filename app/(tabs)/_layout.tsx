@@ -1,34 +1,38 @@
-import { Tabs } from 'expo-router';
-import { Home, PieChart, Settings } from 'lucide-react-native';
+import { Tabs } from "expo-router";
+import { Home, PieChart, Settings } from "lucide-react-native";
+import {
+  BRAND_COLOR,
+  SURFACE_COLOR,
+  TEXT_DISABLED_COLOR,
+  BORDER_COLOR,
+} from "@/constants/theme";
 
 export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: '#f97316',
-        tabBarInactiveTintColor: '#9ca3af',
+        tabBarActiveTintColor: BRAND_COLOR,
+        tabBarInactiveTintColor: TEXT_DISABLED_COLOR,
         headerShadowVisible: false,
-        headerStyle: { backgroundColor: '#ffffff' },
+        headerStyle: { backgroundColor: SURFACE_COLOR },
         tabBarStyle: {
-          borderTopColor: '#e5e7eb',
-          backgroundColor: '#ffffff',
+          borderTopColor: BORDER_COLOR,
+          backgroundColor: SURFACE_COLOR,
         },
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
-          title: '首页',
-          headerTitle: '口袋账本',
-          tabBarIcon: ({ color, size }) => (
-            <Home color={color} size={size} />
-          ),
+          title: "首页",
+          headerTitle: "口袋账本",
+          tabBarIcon: ({ color, size }) => <Home color={color} size={size} />,
         }}
       />
       <Tabs.Screen
         name="stats"
         options={{
-          title: '统计',
+          title: "统计",
           tabBarIcon: ({ color, size }) => (
             <PieChart color={color} size={size} />
           ),
@@ -37,7 +41,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="settings"
         options={{
-          title: '设置',
+          title: "设置",
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
             <Settings color={color} size={size} />

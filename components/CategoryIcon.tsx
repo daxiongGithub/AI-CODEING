@@ -1,5 +1,5 @@
 import { View } from 'react-native';
-import { BG_TOKEN_MAP, TEXT_TOKEN_MAP, BRAND_COLOR } from '@/constants/colors';
+import { BG_TOKEN_MAP, TEXT_TOKEN_MAP, BRAND_COLOR } from '@/constants/theme';
 import { ICON_MAP } from '@/constants/icons';
 import { Folder } from 'lucide-react-native';
 

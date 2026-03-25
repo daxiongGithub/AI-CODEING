@@ -15,7 +15,7 @@ import {
   TEXT_MAIN_COLOR,
   TEXT_SECONDARY_COLOR,
   BORDER_COLOR,
-} from '@/constants/colors';
+} from '@/constants/theme';
 
 // ─── L1Item 展示组件 ───────────────────────────────────────────
 function L1Item({

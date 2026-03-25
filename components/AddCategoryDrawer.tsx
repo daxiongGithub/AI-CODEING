@@ -24,7 +24,7 @@ import {
   PRIMARY_BG_COLOR,
   TEXT_SECONDARY_COLOR,
   BORDER_COLOR,
-} from "@/constants/colors";
+} from "@/constants/theme";
 
 /** 12 种颜色 token 循环分配 */
 const COLOR_TOKENS = [

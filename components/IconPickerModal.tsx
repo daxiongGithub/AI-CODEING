@@ -21,7 +21,7 @@ import {
   BRAND_COLOR,
   PRIMARY_BG_COLOR,
   TEXT_SECONDARY_COLOR,
-} from "@/constants/colors";
+} from "@/constants/theme";
 import { Folder } from "lucide-react-native";
 
 interface IconPickerModalProps {
@@ -42,7 +42,7 @@ const COLUMNS = 4;
 const ALL_GROUP = { label: "全部", icons: ALL_ICON_NAMES };
 const FILTER_GROUPS = [ALL_GROUP, ...ICON_GROUPS];
 
-// 图标展示用的颜色循环（从 constants/colors 取值，禁止硬编码十六进制）
+// 图标展示用的颜色循环（从 constants/theme 取值，禁止硬编码十六进制）
 const COLOR_PAIRS = [
   { bg: PRIMARY_BG_COLOR, icon: BRAND_COLOR },
   { bg: BG_TOKEN_MAP["blue-100"]!, icon: TEXT_TOKEN_MAP["text-blue-500"]! },
