@@ -1,3 +1,161 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ============================================================
+   文字
+   ============================================================ */
+
+/** 单行省略 */
+.ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/** 两行省略 */
+.ellipsis-2 {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+
+/** 三行省略 */
+.ellipsis-3 {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow: hidden;
+}
+
+/** 禁止换行 */
+.no-wrap {
+  white-space: nowrap;
+}
+
+/* ============================================================
+   布局
+   ============================================================ */
+
+/** flex 水平居中 */
+.row-center {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+/** flex 水平居中 + 两端对齐 */
+.row-between {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/** flex 完全居中（水平 + 垂直） */
+.center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/** flex 列布局居中 */
+.col-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/** 绝对定位填满父容器 */
+.absolute-fill {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+/** 填满剩余空间 */
+.flex-fill {
+  flex: 1;
+  min-height: 0;
+}
+
+/* ============================================================
+   安全区
+   ============================================================ */
+
+/** 顶部安全区内边距 */
+.safe-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+/** 底部安全区内边距 */
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/** 顶部 + 底部安全区内边距 */
+.safe-area {
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* ============================================================
+   分割线
+   ============================================================ */
+
+/** 横向分割线 */
+.divider {
+  height: 1px;
+  background-color: rgba(0, 0, 0, 0.06);
+}
+
+/** 纵向分割线 */
+.divider-y {
+  width: 1px;
+  background-color: rgba(0, 0, 0, 0.06);
+}
+
+/* ============================================================
+   交互状态
+   ============================================================ */
+
+/** 禁用态：降低透明度并阻止交互 */
+.disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+/** 加载中：阻止重复触发 */
+.loading {
+  pointer-events: none;
+}
+
+/** 隐藏但保留占位 */
+.invisible {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ============================================================
+   图片 / 媒体
+   ============================================================ */
+
+/** 图片等比填充容器 */
+.img-cover {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/** 图片等比包含在容器内 */
+.img-contain {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}

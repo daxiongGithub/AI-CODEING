@@ -1,20 +1,18 @@
 import { TouchableOpacity, View, Text } from "react-native";
 import clsx from "clsx";
-import type { CategoryWithSubs } from "@/types";
 import { CategoryIcon } from "@/components/CategoryIcon";
+import type { CategoryWithSubs } from "@/types";
 
 /** 一级分类列表项，选中时高亮左侧边框与背景 */
-export function CategoryL1Item({
-  category,
-  selected,
-  onPress,
-  onLongPress,
-}: {
+interface CategoryL1ItemProps {
   category: CategoryWithSubs;
   selected: boolean;
   onPress: () => void;
   onLongPress: () => void;
-}) {
+}
+
+export function CategoryL1Item(props: CategoryL1ItemProps) {
+  const { category, selected, onPress, onLongPress } = props;
   return (
     <TouchableOpacity
       activeOpacity={0.7}

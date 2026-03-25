@@ -4,13 +4,13 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import to from "await-to-js";
 import { useCategoryStore } from "@/store/categoryStore";
 import { isCategoryInUse } from "@/db/queries";
-import type { CategoryWithSubs, CategoryType, SubCategory } from "@/types";
 import { SegmentedControl } from "@/components/SegmentedControl";
 import { AddCategoryDrawer } from "@/components/AddCategoryDrawer";
 import { Navbar } from "@/components/Navbar";
 import { CategoryL1Item } from "@/app/categories/components/CategoryL1Item";
 import { CategoryL2Item } from "@/app/categories/components/CategoryL2Item";
 import { CategoryPanelHeader } from "@/app/categories/components/CategoryPanelHeader";
+import type { CategoryWithSubs, CategoryType } from "@/types";
 
 /** 分类管理页，支持新增一/二级分类及启用/停用操作 */
 export default function CategoriesScreen() {
@@ -54,38 +54,30 @@ export default function CategoriesScreen() {
   /** 切换分类启用/停用，已被账目引用时弹窗二次确认 */
   const handleToggleEnabled = useCallback(
     async (id: string, currentEnabled: boolean) => {
-      if (currentEnabled) {
-        const [err, inUse] = await to(isCategoryInUse(id));
-        if (err) {
-          Alert.alert("错误", "操作失败，请重试");
-          return;
-        }
-        if (inUse) {
-          Alert.alert(
-            "停用分类",
-            "该分类已被账目引用。停用后将不再出现在记账页，但历史账目中仍会显示。确认停用？",
-            [
-              { text: "取消", style: "cancel" },
-              {
-                text: "确认停用",
-                style: "destructive",
-                onPress: () => toggleEnabled(id, false),
-              },
-            ],
-          );
-        } else {
-          Alert.alert("停用分类", "停用后该分类将不可在记账页选择。确认停用？", [
-            { text: "取消", style: "cancel" },
-            {
-              text: "确认",
-              style: "destructive",
-              onPress: () => toggleEnabled(id, false),
-            },
-          ]);
-        }
-      } else {
+      if (!currentEnabled) {
         toggleEnabled(id, true);
+        return;
       }
+
+      const [err, inUse] = await to(isCategoryInUse(id));
+      if (err) {
+        Alert.alert("错误", "操作失败，请重试");
+        return;
+      }
+
+      const message = inUse
+        ? "该分类已被账目引用。停用后将不再出现在记账页，但历史账目中仍会显示。确认停用？"
+        : "停用后该分类将不可在记账页选择。确认停用？";
+      const confirmText = inUse ? "确认停用" : "确认";
+
+      Alert.alert("停用分类", message, [
+        { text: "取消", style: "cancel" },
+        {
+          text: confirmText,
+          style: "destructive",
+          onPress: () => toggleEnabled(id, false),
+        },
+      ]);
     },
     [toggleEnabled],
   );
