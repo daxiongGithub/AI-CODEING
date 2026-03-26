@@ -35,7 +35,7 @@ import {
 
 const config: Config = {
   content: ["./app/**/*.{js,jsx,ts,tsx}", "./components/**/*.{js,jsx,ts,tsx}"],
-  // TODO: 这里没有解决使用ES模块方式引入
+  // TODO: 这里没有解决，我想使用ES模块方式引入
   // eslint-disable-next-line
   presets: [require("nativewind/preset")],
   theme: {

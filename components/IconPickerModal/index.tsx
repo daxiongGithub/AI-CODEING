@@ -14,7 +14,7 @@ import { FlashList } from "@shopify/flash-list";
 import { X, Search } from "lucide-react-native";
 import { ALL_ICON_NAMES, ICON_LABELS } from "@/constants/icons";
 import { TEXT_SECONDARY_COLOR } from "@/constants/theme";
-import { IconCell } from "./components/IconCell";
+import { IconCell } from "../IconCell";
 import { useIconPicker, CARD_HEIGHT, FILTER_GROUPS } from "./hooks/useIconPicker";
 
 /** 图标网格列数 */

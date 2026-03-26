@@ -1,5 +1,6 @@
 import { TouchableOpacity, View, Text } from "react-native";
 import { Folder } from "lucide-react-native";
+import clsx from "clsx";
 import { ICON_MAP, ICON_LABELS } from "@/constants/icons";
 import {
   BG_TOKEN_MAP,
@@ -45,20 +46,19 @@ export function IconCell(props: IconCellProps) {
       className="flex-1 items-center py-2"
     >
       <View
-        style={{
-          width: 48,
-          height: 48,
-          borderRadius: 24,
-          backgroundColor: bg,
-          justifyContent: "center",
-          alignItems: "center",
-          ...(isSelected && { borderWidth: 1, borderColor: BRAND_COLOR }),
-        }}
+        className={clsx(
+          "w-12 h-12 rounded-full justify-center items-center",
+          isSelected && "border border-brand",
+        )}
+        style={{ backgroundColor: bg }}
       >
         <IconComponent size={24} color={isSelected ? BRAND_COLOR : icon} />
       </View>
       <Text
-        className={`mt-1 text-[10px] ${isSelected ? "font-semibold text-orange-500" : "text-zinc-500"}`}
+        className={clsx(
+          "mt-1 text-[10px]",
+          isSelected ? "font-semibold text-orange-500" : "text-zinc-500",
+        )}
         numberOfLines={1}
       >
         {ICON_LABELS[iconName] ?? iconName}
