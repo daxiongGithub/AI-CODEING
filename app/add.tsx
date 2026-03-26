@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { View, Text, KeyboardAvoidingView, Platform } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Stack, useRouter } from "expo-router";
@@ -22,6 +22,8 @@ export default function AddScreen() {
   const { expenseCategories, incomeCategories, loadCategories } = useCategoryStore();
   const { addTransaction, isLoading, error, clearError } = useTransactionStore();
   const form = useAddForm();
+  const { selectedCategoryId, selectCategory } = form;
+  const [isAmountFocused, setIsAmountFocused] = useState(false);
 
   // 首次挂载时加载分类
   useEffect(() => {
@@ -35,7 +37,15 @@ export default function AddScreen() {
 
   const categories = form.type === "expense" ? expenseCategories : incomeCategories;
 
-  const selectedCategory = categories.find((c) => c.id === form.selectedCategoryId);
+  const selectedCategory = categories.find((c) => c.id === selectedCategoryId);
+
+  /** 无选中分类时，默认选中当前类型的第一个分类 */
+  useEffect(() => {
+    if (categories.length === 0) return;
+    const hasSelected = categories.some((c) => c.id === selectedCategoryId);
+    if (hasSelected) return;
+    categories?.[0]?.id && selectCategory(categories[0].id);
+  }, [categories, selectedCategoryId, selectCategory]);
 
   // 含二级分类的一级分类：必须选到子级才能保存
   const needsSub =
@@ -43,12 +53,12 @@ export default function AddScreen() {
 
   const canSave =
     isValidAmount(form.parsedAmount) &&
-    form.selectedCategoryId !== null &&
+    selectedCategoryId !== null &&
     (!needsSub || form.selectedSubCategoryId !== null);
 
   /** 触发保存并在成功后关闭弹窗 */
   const handleSave = async () => {
-    if (!canSave || !form.selectedCategoryId) return;
+    if (!canSave || !selectedCategoryId) return;
 
     const id = Crypto.randomUUID();
     const now = new Date().toISOString();
@@ -58,7 +68,7 @@ export default function AddScreen() {
         id,
         type: form.type,
         amount: form.parsedAmount,
-        categoryId: form.selectedCategoryId,
+        categoryId: selectedCategoryId,
         subCategoryId: form.selectedSubCategoryId ?? null,
         note: form.note.trim() || null,
         date: form.date,
@@ -89,52 +99,61 @@ export default function AddScreen() {
         }}
       />
 
-      {/* 
-        全页面使用 position 避免挤压 flex 布局。
-        - style 和 contentContainerStyle 都设为 flex: 1 保证子元素撑满高度。
-        - 聚焦在顶部金额时（不被键盘遮挡），页面不会发生任何位移。
-        - 聚焦在底部备注时，整个视图会上推以露出输入框，是最原生的轻量体验。
-      */}
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        contentContainerStyle={{ flex: 1 }}
-        behavior={Platform.OS === "ios" ? "position" : undefined}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 0}
-      >
-        {/* 金额输入 */}
-        <AmountDisplay rawAmount={form.rawAmount} onChangeAmount={form.setAmount} />
+      <View className="flex-1">
+        {/* 金额输入不参与键盘避让，避免被上推 */}
+        <AmountDisplay
+          rawAmount={form.rawAmount}
+          onChangeAmount={form.setAmount}
+          onFocusChange={setIsAmountFocused}
+        />
+        {/* 
+          下方区域使用 padding 方式避开键盘。
+          - flexGrow: 1 保证内容撑满高度。
+          - 聚焦底部输入时通过内边距抬起，不会压住顶部金额。
+        */}
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          contentContainerStyle={{ flexGrow: 1 }}
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
+          keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 0}
+          enabled={!isAmountFocused}
+        >
+          {/* catSection：占满剩余高度 */}
+          <View className="flex-1 gap-2 px-4 pt-2">
+            {/* 一级分类单行横向滚动 */}
+            <CategoryRow
+              categories={categories}
+              selectedCategoryId={form.selectedCategoryId}
+              onSelectCategory={form.selectCategory}
+            />
 
-        {/* catSection：占满剩余高度 */}
-        <View className="flex-1 gap-2 px-4 pt-2">
-          {/* 一级分类单行横向滚动 */}
-          <CategoryRow
-            categories={categories}
-            selectedCategoryId={form.selectedCategoryId}
-            onSelectCategory={form.selectCategory}
-          />
+            {/* 二级分类面板（flex-1 撑满剩余空间） */}
+            {selectedCategory !== undefined &&
+              selectedCategory.subCategories.length > 0 && (
+                <SubCategoryPanel
+                  parentCategory={selectedCategory}
+                  selectedSubCategoryId={form.selectedSubCategoryId}
+                  onSelectSubCategory={form.selectSubCategory}
+                />
+              )}
+          </View>
 
-          {/* 二级分类面板（flex-1 撑满剩余空间） */}
-          {selectedCategory !== undefined &&
-            selectedCategory.subCategories.length > 0 && (
-              <SubCategoryPanel
-                parentCategory={selectedCategory}
-                selectedSubCategoryId={form.selectedSubCategoryId}
-                onSelectSubCategory={form.selectSubCategory}
-              />
-            )}
-        </View>
-
-        {/* metaSection：始终固定在底部 */}
-        <View className="px-4 pt-3 pb-4 gap-[10px]">
-          <DatePickerButton date={form.date} onDateChange={form.setDate} />
-          <NoteInput value={form.note} onChangeText={form.setNote} />
-          <SaveButton
-            canSave={canSave}
-            isLoading={isLoading}
-            onSave={() => void handleSave()}
-          />
-        </View>
-      </KeyboardAvoidingView>
+          {/* metaSection：始终固定在底部 */}
+          <View className="px-4 pt-3 pb-4 gap-[10px] bg-white">
+            <DatePickerButton date={form.date} onDateChange={form.setDate} />
+            <NoteInput
+              value={form.note}
+              onChangeText={form.setNote}
+              onFocus={() => setIsAmountFocused(false)}
+            />
+            <SaveButton
+              canSave={canSave}
+              isLoading={isLoading}
+              onSave={() => void handleSave()}
+            />
+          </View>
+        </KeyboardAvoidingView>
+      </View>
 
       {/* 错误提示 Toast */}
       {error !== null && (

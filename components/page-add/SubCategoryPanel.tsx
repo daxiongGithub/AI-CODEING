@@ -26,7 +26,7 @@ export function SubCategoryPanel(props: SubCategoryPanelProps) {
   const selectedSub = subCategories.find((s) => s.id === selectedSubCategoryId);
 
   return (
-    <View className="flex-1 rounded-xl bg-zinc-50 border border-zinc-50 py-[10px] px-3 gap-2">
+    <View className="rounded-xl bg-zinc-50 border border-zinc-50 py-[10px] px-3 gap-2">
       {/* 面包屑 Header */}
       <View className="flex-row items-center gap-1">
         <ParentIcon size={14} color={BRAND_COLOR} />

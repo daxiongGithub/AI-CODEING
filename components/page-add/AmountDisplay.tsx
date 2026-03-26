@@ -5,6 +5,7 @@ import { TEXT_SECONDARY_COLOR, TEXT_MAIN_COLOR } from "@/constants/theme";
 export interface AmountDisplayProps {
   rawAmount: string;
   onChangeAmount: (v: string) => void;
+  onFocusChange?: (focused: boolean) => void;
 }
 
 /**
@@ -13,8 +14,13 @@ export interface AmountDisplayProps {
  * 点击任意区域均可唤起键盘。
  */
 export function AmountDisplay(props: AmountDisplayProps) {
-  const { rawAmount, onChangeAmount } = props;
+  const { rawAmount, onChangeAmount, onFocusChange } = props;
   const inputRef = useRef<TextInput>(null);
+
+  /** 通知父级当前聚焦状态 */
+  const handleFocusChange = (focused: boolean) => {
+    onFocusChange?.(focused);
+  };
 
   return (
     <TouchableOpacity
@@ -39,6 +45,8 @@ export function AmountDisplay(props: AmountDisplayProps) {
           ref={inputRef}
           value={rawAmount}
           onChangeText={onChangeAmount}
+          onFocus={() => handleFocusChange(true)}
+          onBlur={() => handleFocusChange(false)}
           keyboardType="decimal-pad"
           placeholder="0.00"
           placeholderTextColor={TEXT_SECONDARY_COLOR}
