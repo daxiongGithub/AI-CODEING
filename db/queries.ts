@@ -9,6 +9,7 @@ import type {
   Transaction,
   NewTransaction,
   CategoryWithSubs,
+  TransactionWithCategory,
 } from "@/types";
 
 // ─── 账目操作 ───
@@ -197,5 +198,40 @@ export async function getAllCategoriesAll(
   return cats.map((cat) => ({
     ...cat,
     subCategories: subs.filter((s) => s.parentCategoryId === cat.id),
+  }));
+}
+
+// ─── 首页联表查询 ───
+
+export async function getTransactionsWithCategoryByDateRange(
+  start: string,
+  end: string,
+): Promise<TransactionWithCategory[]> {
+  const rows = await db
+    .select({
+      id: transactions.id,
+      type: transactions.type,
+      amount: transactions.amount,
+      categoryId: transactions.categoryId,
+      subCategoryId: transactions.subCategoryId,
+      note: transactions.note,
+      date: transactions.date,
+      createdAt: transactions.createdAt,
+      updatedAt: transactions.updatedAt,
+      categoryName: categories.name,
+      categoryIcon: categories.icon,
+      categoryColorBg: categories.colorTokenBg,
+      categoryColorText: categories.colorTokenText,
+      subCategoryName: subCategories.name,
+    })
+    .from(transactions)
+    .innerJoin(categories, eq(transactions.categoryId, categories.id))
+    .leftJoin(subCategories, eq(transactions.subCategoryId, subCategories.id))
+    .where(between(transactions.date, start, end))
+    .orderBy(desc(transactions.date), desc(transactions.createdAt));
+
+  return rows.map((r) => ({
+    ...r,
+    subCategoryName: r.subCategoryName ?? null,
   }));
 }

@@ -25,3 +25,12 @@ export type CategoryWithSubs = Category & {
 export type TransactionType = "income" | "expense";
 /** 分类类型：收入 | 支出 */
 export type CategoryType = "income" | "expense";
+
+/** 账目记录（含分类信息，用于首页列表展示） */
+export type TransactionWithCategory = Transaction & {
+  categoryName: string;
+  categoryIcon: string;
+  categoryColorBg: string;
+  categoryColorText: string;
+  subCategoryName: string | null;
+};

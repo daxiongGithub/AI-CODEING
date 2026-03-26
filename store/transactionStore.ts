@@ -6,8 +6,9 @@ import {
   getTransactionsByDate,
   getSummaryByDateRange,
   deleteTransaction,
+  getTransactionsWithCategoryByDateRange,
 } from "@/db/queries";
-import type { Transaction, NewTransaction } from "@/types";
+import type { Transaction, NewTransaction, TransactionWithCategory } from "@/types";
 
 interface MonthlySummary {
   totalIncome: number;
@@ -17,12 +18,14 @@ interface MonthlySummary {
 
 interface TransactionState {
   transactions: Transaction[];
+  recentTransactions: TransactionWithCategory[];
   monthlySummary: MonthlySummary;
   error: string | null;
   isLoading: boolean;
 
   loadTransactionsByDate: (date: string) => Promise<void>;
   loadMonthlySummary: (year: number, month: number) => Promise<void>;
+  loadRecentTransactions: (start: string, end: string) => Promise<void>;
   addTransaction: (data: NewTransaction) => Promise<void>;
   removeTransaction: (id: string) => Promise<void>;
   clearError: () => void;
@@ -30,6 +33,7 @@ interface TransactionState {
 
 export const useTransactionStore = create<TransactionState>((set) => ({
   transactions: [],
+  recentTransactions: [],
   monthlySummary: { totalIncome: 0, totalExpense: 0, balance: 0 },
   error: null,
   isLoading: false,
@@ -71,6 +75,16 @@ export const useTransactionStore = create<TransactionState>((set) => ({
         balance: totalIncome - totalExpense,
       },
     });
+  },
+
+  /** 加载指定日期范围内的账目（含分类信息），用于首页列表 */
+  loadRecentTransactions: async (start: string, end: string) => {
+    const [err, data] = await to(getTransactionsWithCategoryByDateRange(start, end));
+    if (err) {
+      set({ error: "加载账目失败" });
+      return;
+    }
+    set({ recentTransactions: data });
   },
 
   /** 新增一笔账目，失败时向上抛出以便调用方感知 */
