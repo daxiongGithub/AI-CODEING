@@ -15,7 +15,10 @@
       "bundleIdentifier": "com.yourname.pocketbook"
     },
     "android": {
-      "package": "com.yourname.pocketbook"
+      "package": "com.yourname.pocketbook",
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "plugins": [
       "expo-router",
@@ -31,6 +34,14 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "07826b65-7ff7-4e22-ab93-5f82e1bba9ee"
+      }
     }
   }
 }
