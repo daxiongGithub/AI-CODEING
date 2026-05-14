@@ -7,6 +7,7 @@
     "scheme": "pocketbook",
     "userInterfaceStyle": "automatic",
     "platforms": [
+      "web",
       "ios",
       "android"
     ],
@@ -30,7 +31,8 @@
           "cameraPermission": "PocketBook 需要访问您的相机以拍照记账。"
         }
       ],
-      "expo-asset"
+      "expo-asset",
+      "expo-sharing"
     ],
     "experiments": {
       "typedRoutes": true
